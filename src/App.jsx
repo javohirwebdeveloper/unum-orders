@@ -30,7 +30,7 @@ function App() {
   if (isLoading) {
     return (
       <div className="fixed bg-[#095946] inset-0 flex items-center justify-center z-50">
-        <img src={LoadingImg} alt="Loading..." className=" w-44 h-44" />
+        <img src={LoadingImg} alt="Loading..." className=" w-36 h-36" />
       </div>
     );
   }
@@ -46,12 +46,7 @@ function App() {
             <img src={MenuImg} alt="" />
           </button>
           <Link to="/">
-            <div className="flex gap-1 items-center justify-center">
-              <img src={LogoImg} className="w-12 rounded-[15%]" alt="" />
-              <h1 className=" text-[#095946] font-[700] text-wrap text-sm w-2">
-                UNUM MARKET
-              </h1>
-            </div>
+            <img src={LogoImg} className="w-12 rounded-[15%]" alt="" />
           </Link>
           <Link
             to="/cart"
@@ -60,6 +55,9 @@ function App() {
             <img src={CartImg} alt="" />
           </Link>
         </header>
+        <h1 className=" text-[#095946] font-[700] text-wrap text-sm w-2">
+          UNUM MARKET
+        </h1>
 
         <main className="mt-20">
           <Routes>
