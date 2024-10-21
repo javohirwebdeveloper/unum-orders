@@ -47,6 +47,7 @@ function App() {
           </button>
           <Link to="/">
             <img src={LogoImg} className="w-12" alt="" />
+            <a href="https://unummarket.vercel.app/sitemap.xml"></a>
           </Link>
           <Link
             to="/cart"
