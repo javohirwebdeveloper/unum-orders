@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { Helmet } from "react-helmet";
 import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
 import Home from "./pages/Home";
-import Likes from "./pages/Likes";
 import Cart from "./pages/Cart";
 import AdminPanel from "./pages/AdminPanel"; // AdminPanel'ni import qiling
 import MenuModal from "./components/MenuModal";
@@ -62,7 +62,6 @@ function App() {
         <main className="mt-20">
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/likes" element={<Likes />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/admin" element={<AdminPanel />} />{" "}
           </Routes>
