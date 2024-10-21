@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
 import Home from "./pages/Home";
 import Likes from "./pages/Likes";
 import Cart from "./pages/Cart";
+import AdminPanel from "./pages/AdminPanel"; // AdminPanel'ni import qiling
 import MenuModal from "./components/MenuModal";
 import SearchModal from "./components/SearchModal";
 import OrderModal from "./components/OrderModal";
@@ -16,20 +17,20 @@ function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isOrderOpen, setIsOrderOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(true); 
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 2000); 
+    }, 2000);
 
     return () => clearTimeout(timer);
   }, []);
 
   if (isLoading) {
     return (
-      <div className="fixed bg-[#002336] inset-0 flex items-center justify-center  z-50">
-        <img src={LoadingImg} alt="Loading..." className=" w-32 h-32" />
+      <div className="fixed bg-[#002336] inset-0 flex items-center justify-center z-50">
+        <img src={LoadingImg} alt="Loading..." className="w-32 h-32" />
       </div>
     );
   }
@@ -44,7 +45,9 @@ function App() {
           >
             <img src={MenuImg} alt="" />
           </button>
-          <Link to="/"><img src={LogoImg} className="w-12" alt="" /></Link>
+          <Link to="/">
+            <img src={LogoImg} className="w-12" alt="" />
+          </Link>
           <Link
             to="/cart"
             className="flex justify-center items-center flex-col px-4 py-2 rounded"
@@ -58,10 +61,10 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/likes" element={<Likes />} />
             <Route path="/cart" element={<Cart />} />
+            <Route path="/admin" element={<AdminPanel />} />{" "}
           </Routes>
         </main>
 
-    
         {isMenuOpen && (
           <div
             onClick={() => setIsMenuOpen(false)}

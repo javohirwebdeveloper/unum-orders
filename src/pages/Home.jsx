@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { products } from "../Api";
+import { db } from "../firebase"; // Firebase config
+import { collection, getDocs } from "firebase/firestore"; // Firestore funksiyalari
 import OrderModal from "../components/OrderModal";
 import SearchImg from "../assets/Search.svg";
 
@@ -8,9 +9,23 @@ const Home = () => {
   const [isOrderOpen, setIsOrderOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [cart, setCart] = useState([]);
+  const [products, setProducts] = useState([]); // Mahsulotlar uchun state
 
   useEffect(() => {
-    // localStorage'dan cart ma'lumotlarini yuklaymiz
+    const fetchProducts = async () => {
+      const productsCollection = collection(db, "products");
+      const productSnapshot = await getDocs(productsCollection);
+      const productList = productSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setProducts(productList);
+    };
+
+    fetchProducts();
+  }, []);
+
+  useEffect(() => {
     const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
     setCart(storedCart);
   }, []);
@@ -38,7 +53,7 @@ const Home = () => {
     <div className="px-4">
       <div className="mb-4">
         <label>
-          <div className=" flex gap-4 rounded-2xl shadow-md bg-[#F3F4F9] text-[#86869E] items-center h-12 pl-6 ">
+          <div className="flex gap-4 rounded-2xl shadow-md bg-[#F3F4F9] text-[#86869E] items-center h-12 pl-6">
             <img src={SearchImg} className="h-4 w-4" alt="" />
             <input
               type="text"
