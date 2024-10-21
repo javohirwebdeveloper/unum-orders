@@ -36,6 +36,7 @@ const MenuModal = ({ setIsMenuOpen }) => {
           <li>
             <Link to="/admin">Admin</Link>
           </li>
+          <Link to="/sitemap.xml">salom</Link>
         </ul>
       </div>
     </>

@@ -10,8 +10,8 @@ import OrderModal from "./components/OrderModal";
 import CartImg from "./assets/Cart.svg";
 import CancelImg from "./assets/Cancel.svg";
 import MenuImg from "./assets/gamburger.svg";
-import LogoImg from "./assets/UNUM-Light1.png";
-import LoadingImg from "./assets/UNUM.png";
+import LogoImg from "./assets/Logo.svg";
+import LoadingImg from "./assets/Logo.svg";
 
 function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -29,8 +29,8 @@ function App() {
 
   if (isLoading) {
     return (
-      <div className="fixed bg-[#002336] inset-0 flex items-center justify-center z-50">
-        <img src={LoadingImg} alt="Loading..." className="w-32 h-32" />
+      <div className="fixed bg-[#095946] inset-0 flex items-center justify-center z-50">
+        <img src={LoadingImg} alt="Loading..." className=" w-44 h-44" />
       </div>
     );
   }
@@ -46,8 +46,12 @@ function App() {
             <img src={MenuImg} alt="" />
           </button>
           <Link to="/">
-            <img src={LogoImg} className="w-12" alt="" />
-            <a href="https://unummarket.vercel.app/sitemap.xml">salom</a>
+            <div className="flex gap-1 items-center justify-center">
+              <img src={LogoImg} className="w-12 rounded-[15%]" alt="" />
+              <h1 className=" text-[#095946] font-[700] text-wrap text-sm w-2">
+                UNUM MARKET
+              </h1>
+            </div>
           </Link>
           <Link
             to="/cart"
