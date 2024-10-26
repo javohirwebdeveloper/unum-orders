@@ -37,8 +37,8 @@ function App() {
 
   return (
     <Router>
-      <div className="p-4 text-[#27214D]">
-        <header className="flex bg-white top-0 pt-2 fixed w-full pr-8 justify-between items-center mb-4">
+      <div className="p-4 text-[#27214D] bg-[#F9F9F9]">
+        <header className="flex [bg-[#F9F9F9] top-0 pt-2 fixed w-full pr-8 justify-between items-center mb-4">
           <button
             onClick={() => setIsMenuOpen(true)}
             className="px-4 py-2 rounded"
@@ -55,9 +55,6 @@ function App() {
             <img src={CartImg} alt="" />
           </Link>
         </header>
-        <h1 className=" text-[#095946] font-[700] text-wrap text-sm w-2">
-          UNUM MARKET
-        </h1>
 
         <main className="mt-20">
           <Routes>

@@ -4,10 +4,15 @@ import { collection, getDocs } from "firebase/firestore"; // Firestore funksiyal
 import OrderModal from "../components/OrderModal";
 import SearchImg from "../assets/Search.svg";
 import { Helmet } from "react-helmet";
+import Modal from "react-modal"; // Modal kutubxonasini o'rnating
+
+// Modal uchun uslubiy parametrlar
+Modal.setAppElement("#root"); // React ilovangizning ildiz elementini o'rnating
 
 const Home = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isOrderOpen, setIsOrderOpen] = useState(false);
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [cart, setCart] = useState([]);
   const [products, setProducts] = useState([]); // Mahsulotlar uchun state
@@ -50,23 +55,26 @@ const Home = () => {
     return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
   };
 
+  // Modalni ochish va yopish funksiyalari
+  const openSearchModal = () => {
+    setIsSearchModalOpen(true);
+  };
+
+  const closeSearchModal = () => {
+    setIsSearchModalOpen(false);
+    setSearchTerm("");
+  };
+
   return (
     <>
       <div className="px-4">
-        <div className="mb-4">
-          <label>
-            <div className="flex gap-4 rounded-2xl shadow-md bg-[#F3F4F9] text-[#86869E] items-center h-12 pl-6">
-              <img src={SearchImg} className="h-4 w-4" alt="" />
-              <input
-                type="text"
-                placeholder="Mahsulot qidiring..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full border-none bg-transparent outline-none placeholder-[#86869E] border rounded-lg"
-              />
-            </div>
-          </label>
-        </div>
+        <button
+          onClick={openSearchModal}
+          className="mb-4 bg-blue-500 text-white px-4 py-2 rounded"
+        >
+          Qidirish
+        </button>
+
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {filteredProducts.length > 0 ? (
             filteredProducts.map((product) => (
@@ -97,6 +105,42 @@ const Home = () => {
             </p>
           )}
         </div>
+
+        {/* Qidirish Modal */}
+        <Modal
+          isOpen={isSearchModalOpen}
+          onRequestClose={closeSearchModal}
+          contentLabel="Qidirish Modal"
+          className="modal" // Stilni o'zingizga moslashtiring
+          overlayClassName="overlay" // Stilni o'zingizga moslashtiring
+        >
+          <h2>Qidirish</h2>
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Mahsulotni qidiring..."
+            className="border p-2 rounded w-full"
+          />
+          <button
+            onClick={closeSearchModal}
+            className="mt-2 bg-red-500 text-white px-4 py-2 rounded"
+          >
+            Yopish
+          </button>
+
+          {filteredProducts.length > 0 ? (
+            <ul className="mt-4">
+              {filteredProducts.map((product) => (
+                <li key={product.id} className="py-2">
+                  {product.name}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>Natijalar topilmadi.</p>
+          )}
+        </Modal>
 
         {isOrderOpen && (
           <OrderModal
