@@ -46,7 +46,7 @@ function App() {
             <img src={MenuImg} alt="" />
           </button>
           <Link to="/">
-            <img src={LogoImg} className="w-12 rounded-[15%]" alt="" />
+            <img src={LogoImg} className="w-10 rounded-[15%]" alt="" />
           </Link>
           <Link
             to="/cart"
