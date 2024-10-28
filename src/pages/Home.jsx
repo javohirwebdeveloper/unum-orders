@@ -1,8 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { db } from "../firebase";
-import { collection, getDocs } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  updateDoc,
+  doc,
+  addDoc,
+} from "firebase/firestore";
 import OrderModal from "../components/OrderModal";
 import { Helmet } from "react-helmet";
+import { IoMdHeartEmpty, IoMdHeart } from "react-icons/io";
 
 const Home = () => {
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -10,6 +17,7 @@ const Home = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [cart, setCart] = useState([]);
   const [products, setProducts] = useState([]);
+  const [likedProducts, setLikedProducts] = useState([]);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -28,6 +36,9 @@ const Home = () => {
   useEffect(() => {
     const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
     setCart(storedCart);
+
+    const storedLikes = JSON.parse(localStorage.getItem("likedProducts")) || [];
+    setLikedProducts(storedLikes);
   }, []);
 
   const handleCategoryChange = (category) => {
@@ -45,9 +56,51 @@ const Home = () => {
   };
 
   const addToCart = (orderDetails) => {
-    const updatedCart = [...cart, orderDetails];
-    setCart(updatedCart);
-    localStorage.setItem("cart", JSON.stringify(updatedCart));
+    // Check if product is already in the cart
+    const isProductInCart = cart.some((item) => item.id === orderDetails.id);
+
+    if (!isProductInCart) {
+      const updatedCart = [...cart, orderDetails];
+      setCart(updatedCart);
+      localStorage.setItem("cart", JSON.stringify(updatedCart));
+    }
+  };
+
+  const isInCart = (product) => {
+    return cart.some((item) => item.id === product.id);
+  };
+
+  const toggleLike = async (product) => {
+    const updatedLikes = likedProducts.includes(product.id)
+      ? likedProducts.filter((id) => id !== product.id)
+      : [...likedProducts, product.id];
+
+    setLikedProducts(updatedLikes);
+    localStorage.setItem("likedProducts", JSON.stringify(updatedLikes));
+
+    // Update likes count in Firebase
+    const productRef = doc(db, "products", product.id);
+    await updateDoc(productRef, {
+      likesCount: updatedLikes.includes(product.id)
+        ? product.likesCount + 1
+        : product.likesCount - 1,
+    });
+  };
+
+  const placeOrder = async () => {
+    const orderData = {
+      items: cart,
+      date: new Date(),
+      total: cart.reduce((acc, item) => acc + item.price, 0),
+    };
+
+    // Save order to Firebase
+    await addDoc(collection(db, "orders"), orderData);
+
+    // Clear cart after order
+    setCart([]);
+    localStorage.removeItem("cart");
+    alert("Sizning buyurtmangiz muvaffaqiyatli joylandi!");
   };
 
   const formatPrice = (price) => {
@@ -60,40 +113,40 @@ const Home = () => {
         <button
           onClick={() => handleCategoryChange("all")}
           className={`duration-200 ${
-            selectedCategory == "all"
+            selectedCategory === "all"
               ? "bg-[#ac7518] text-[white]"
               : "bg-[#f4f4f4]"
-          }  px-[10px] py-[8px] rounded-[30px]`}
+          } px-[10px] py-[8px] rounded-[30px]`}
         >
           Barchasi
         </button>
         <button
-          onClick={() => handleCategoryChange("flour")}
+          onClick={() => handleCategoryChange("un")}
           className={`duration-200 ${
-            selectedCategory == "flour"
+            selectedCategory === "un"
               ? "bg-[#ac7518] text-[white]"
               : "bg-[#f4f4f4]"
-          }  px-[10px] py-[8px] rounded-[30px]`}
+          } px-[10px] py-[8px] rounded-[30px]`}
         >
           Unlar
         </button>
         <button
-          onClick={() => handleCategoryChange("feed products")}
+          onClick={() => handleCategoryChange("yem")}
           className={`duration-200 ${
-            selectedCategory == "feed products"
+            selectedCategory === "yem"
               ? "bg-[#ac7518] text-[white]"
               : "bg-[#f4f4f4]"
-          }  px-[10px] py-[8px] rounded-[30px]`}
+          } px-[10px] py-[8px] rounded-[30px]`}
         >
           Omuxta-yemlar
         </button>
         <button
-          onClick={() => handleCategoryChange("food products")}
+          onClick={() => handleCategoryChange("ovqat")}
           className={`duration-200 ${
-            selectedCategory == "food products"
+            selectedCategory === "ovqat"
               ? "bg-[#ac7518] text-[white]"
               : "bg-[#f4f4f4]"
-          }  px-[10px] py-[8px] rounded-[30px]`}
+          } px-[10px] py-[8px] rounded-[30px]`}
         >
           Oziq-ovqat mahsulotlari
         </button>
@@ -104,12 +157,12 @@ const Home = () => {
           filteredProducts.map((product) => (
             <div
               key={product.id}
-              className="border p-2 sm:p-4 rounded-lg shadow-lg"
+              className="border relative p-2 sm:p-4 rounded-lg shadow-lg h-full"
             >
               <img
                 src={product.image}
                 alt={product.name}
-                className="w-full h-36 sm:h-48 object-cover mb-2 sm:mb-4 rounded-lg"
+                className="w-full object-cover mb-2 sm:mb-4 rounded-lg"
               />
               <h3 className="text-base sm:text-lg font-bold mb-1 sm:mb-2">
                 {product.name}
@@ -121,10 +174,31 @@ const Home = () => {
                 {formatPrice(product.price)} сум
               </p>
               <button
+                onClick={() => toggleLike(product)}
+                className={`absolute right-1 flex items-center gap-[2px] bg-[white] border p-1 rounded-lg top-1 font-semibold text-xs sm:text-sm px-3 py-2`}
+              >
+                <h1 className="text-[15px]">{product.likesCount}</h1>
+                {likedProducts.includes(product.id) ? (
+                  <IoMdHeart className="text-red-600 text-[20px]" />
+                ) : (
+                  <IoMdHeartEmpty className="text-gray-500 text-[20px]" />
+                )}
+              </button>
+              <button
                 onClick={() => handleOrderClick(product)}
-                className="w-full bg-[#FFF2E7] font-semibold text-xs sm:text-sm text-[#FFA451] px-3 py-2 rounded-lg"
+                className="w-full bg-[#FFF2E7] font-semibold text-xs sm:text-sm text-[#FFA451] px-3 py-2 rounded-lg mt-2"
               >
                 Харид қилиш
+              </button>
+              <button
+                onClick={() => addToCart(product)}
+                className={`w-full font-semibold text-xs sm:text-sm ${
+                  isInCart(product)
+                    ? "bg-gray-300"
+                    : "bg-[#FFF2E7] text-[#FFA451]"
+                } px-3 py-2 rounded-lg mt-2`}
+              >
+                {isInCart(product) ? "Savatda bor" : "Savatga qo'shish"}
               </button>
             </div>
           ))

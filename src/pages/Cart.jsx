@@ -1,69 +1,86 @@
 import React, { useEffect, useState } from "react";
-import { db } from "../firebase"; // Firebase konfiguratsiyasi
-import {
-  collection,
-  getDocs,
-  query,
-  where,
-  doc,
-  deleteDoc,
-} from "firebase/firestore";
+import { db } from "../firebase";
+import { collection, addDoc } from "firebase/firestore";
+import OrderModal from "../components/OrderModal";
 
-const Cart = () => {
-  const [orders, setOrders] = useState([]);
-  const orderIds = JSON.parse(localStorage.getItem("orders")) || [];
+const Cart = ({ setCart }) => {
+  const [cart, setLocalCart] = useState([]);
+  const [isOrderOpen, setIsOrderOpen] = useState(false);
+  const [orderDetails, setOrderDetails] = useState(null);
 
   useEffect(() => {
-    const fetchOrders = async () => {
-      const ordersCollection = collection(db, "orders");
-      const ordersQuery = query(ordersCollection, where("id", "in", orderIds));
-      const querySnapshot = await getDocs(ordersQuery);
-      const fetchedOrders = querySnapshot.docs.map((doc) => ({
-        id: doc.id, // buyurtma ID sini qo'shamiz
-        ...doc.data(),
-      }));
-      setOrders(fetchedOrders);
-    };
+    const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
+    setLocalCart(storedCart);
+  }, []);
 
-    if (orderIds.length > 0) {
-      fetchOrders();
-    }
-  }, [orderIds]);
+  const handleRemoveFromCart = (product) => {
+    const updatedCart = cart.filter((item) => item.id !== product.id);
+    setLocalCart(updatedCart);
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
+  };
 
-  const handleCancelOrder = async (orderId) => {
+  const handleOrderClick = () => {
+    setOrderDetails(cart);
+    setIsOrderOpen(true);
+  };
+
+  const placeOrder = async () => {
     try {
-      await deleteDoc(doc(db, "orders", orderId));
-      setOrders(orders.filter((order) => order.id !== orderId));
-      // Local storage'dan buyurtma ID ni o'chirish
-      const updatedOrderIds = orderIds.filter((id) => id !== orderId);
-      localStorage.setItem("orders", JSON.stringify(updatedOrderIds));
-      alert("Buyurtma bekor qilindi!");
+      // Buyurtma Firebase'ga qo'shish
+      const orderRef = await addDoc(collection(db, "orders"), {
+        products: cart,
+        createdAt: new Date(),
+      });
+
+      // Buyurtma nomini localStorage'ga saqlash
+      localStorage.setItem("orderName", orderRef.id);
+
+      // Cartni tozalash
+      setLocalCart([]);
+      localStorage.removeItem("cart");
+      setIsOrderOpen(false);
     } catch (error) {
-      console.error("Buyurtmani bekor qilishda xato: ", error);
-      alert("Buyurtmani bekor qilishda xato!");
+      console.error("Buyurtma joylashda xatolik:", error);
     }
   };
 
   return (
-    <div>
-      <h2>Savat</h2>
-      {orders.length === 0 ? (
-        <p>Savatda hech qanday buyurtma yo'q.</p>
+    <div className="p-4">
+      <h2 className="text-lg font-bold mb-4">Savat</h2>
+      {cart.length === 0 ? (
+        <p className="text-center">Hech qanday mahsulot yo'q.</p>
       ) : (
-        <ul>
-          {orders.map((order) => (
-            <li key={order.id}>
-              {order.productName} - {order.quantity} ta - {order.totalPrice}{" "}
-              so'm
+        <div>
+          {cart.map((product) => (
+            <div
+              key={product.id}
+              className="flex justify-between items-center border-b py-2"
+            >
+              <div>
+                <h3 className="font-semibold">{product.name}</h3>
+                <p>{product.price} сум</p>
+              </div>
               <button
-                onClick={() => handleCancelOrder(order.id)}
-                className="bg-red-500 text-white px-2 py-1 rounded ml-4"
+                onClick={() => handleRemoveFromCart(product)}
+                className="text-red-500 hover:text-red-700"
               >
-                Bekor qilish
+                O'chirish
               </button>
-            </li>
+            </div>
           ))}
-        </ul>
+          <button
+            onClick={handleOrderClick}
+            className="mt-4 bg-[#FFA451] text-white py-2 px-4 rounded"
+          >
+            Buyurtma berish
+          </button>
+        </div>
+      )}
+      {isOrderOpen && (
+        <OrderModal
+          setIsOrderOpen={setIsOrderOpen}
+          orderDetails={orderDetails} // orderDetails to'g'ri uzatilmoqda
+        />
       )}
     </div>
   );
