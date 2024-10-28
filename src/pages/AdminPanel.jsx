@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { db } from "../firebase"; // Firebase konfiguratsiyasi
+import { db } from "../firebase";
 import {
   collection,
   getDocs,
@@ -19,33 +19,41 @@ const AdminPanel = () => {
   const [currentId, setCurrentId] = useState(null);
   const [password, setPassword] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const ADMIN_PASSWORD = "Javohir"; // O'zingizning parolingizni kiriting
+  const ADMIN_PASSWORD = "Javohir";
+
+  const fetchProducts = async () => {
+    const productsCollection = collection(db, "products");
+    const productSnapshot = await getDocs(productsCollection);
+    const productList = productSnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+    setProducts(productList);
+  };
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      const productsCollection = collection(db, "products");
-      const productSnapshot = await getDocs(productsCollection);
-      const productList = productSnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setProducts(productList);
-    };
-
     fetchProducts();
   }, []);
 
   const handleAddProduct = async (e) => {
     e.preventDefault();
-    if (editMode) {
+    console.log("Edit Mode:", editMode, "Current ID:", currentId); // Sinov uchun
+
+    if (editMode && currentId) {
       const productRef = doc(db, "products", currentId);
-      await updateDoc(productRef, {
-        name,
-        description,
-        price: Number(price),
-        image,
-      });
-      setEditMode(false);
+
+      try {
+        await updateDoc(productRef, {
+          name,
+          description,
+          price: Number(price),
+          image,
+        });
+        console.log("Mahsulot o‘zgartirildi:", currentId); // Sinov uchun tasdiqlash
+        fetchProducts(); // Yangilangan mahsulotlarni yuklash
+      } catch (error) {
+        console.error("Mahsulotni yangilashda xatolik:", error); // Sinov uchun
+      }
     } else {
       await addDoc(collection(db, "products"), {
         name,
@@ -53,6 +61,8 @@ const AdminPanel = () => {
         price: Number(price),
         image,
       });
+      console.log("Yangi mahsulot qo‘shildi"); // Sinov uchun tasdiqlash
+      fetchProducts();
     }
     resetForm();
   };
@@ -64,11 +74,13 @@ const AdminPanel = () => {
     setDescription(product.description);
     setPrice(product.price);
     setImage(product.image);
+    console.log("Editing product:", product); // Debug
   };
 
   const handleDeleteProduct = async (id) => {
     const productRef = doc(db, "products", id);
     await deleteDoc(productRef);
+    fetchProducts(); // Refresh list after deletion
   };
 
   const resetForm = () => {
@@ -137,7 +149,11 @@ const AdminPanel = () => {
           required
         />
         <button type="submit">{editMode ? "O'zgartirish" : "Qo'shish"}</button>
-        {editMode && <button onClick={resetForm}>Bekor qilish</button>}
+        {editMode && (
+          <button type="button" onClick={resetForm}>
+            Bekor qilish
+          </button>
+        )}
       </form>
 
       <h2>Mahsulotlar ro'yxati</h2>
