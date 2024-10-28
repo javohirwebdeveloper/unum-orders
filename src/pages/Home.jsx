@@ -55,7 +55,7 @@ const Home = () => {
   };
 
   return (
-    <div className="px-4">
+    <div>
       <div className="flex flex-wrap gap-4 mb-4 text-[#333333]">
         <button
           onClick={() => handleCategoryChange("all")}

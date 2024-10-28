@@ -40,12 +40,9 @@ function App() {
 
   return (
     <Router>
-      <div className="p-4 text-[#27214D] ">
-        <header className="flex [bg-[#F9F9F9] top-0 pt-2 fixed w-full pr-8 justify-between items-center mb-4">
-          <button
-            onClick={() => setIsMenuOpen(true)}
-            className="px-4 py-2 rounded"
-          >
+      <div className="p-3 text-[#27214D] ">
+        <header className="flex [bg-[#F9F9F9] top-0 pt-2 px-2 fixed w-full justify-between items-center mb-4">
+          <button onClick={() => setIsMenuOpen(true)} className=" rounded">
             <img src={MenuImg} alt="Menu" />
           </button>
           <Link to="/">
