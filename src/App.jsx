@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { Helmet } from "react-helmet";
 import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
 import Home from "./pages/Home";
 import Cart from "./pages/Cart";
-import AdminPanel from "./pages/AdminPanel"; // AdminPanel'ni import qiling
+import AdminPanel from "./pages/AdminPanel";
 import MenuModal from "./components/MenuModal";
 import SearchModal from "./components/SearchModal";
 import OrderModal from "./components/OrderModal";
 import CartImg from "./assets/Cart.svg";
 import CancelImg from "./assets/Cancel.svg";
 import MenuImg from "./assets/gamburger.svg";
+import SearchImg from "./assets/Search.svg"; // Qidiruv tugma uchun rasm
 import LogoImg from "./assets/Logo.svg";
 import LoadingImg from "./assets/Logo.svg";
 
@@ -23,7 +23,6 @@ function App() {
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 2000);
-
     return () => clearTimeout(timer);
   }, []);
 
@@ -43,24 +42,29 @@ function App() {
             onClick={() => setIsMenuOpen(true)}
             className="px-4 py-2 rounded"
           >
-            <img src={MenuImg} alt="" />
+            <img src={MenuImg} alt="Menu" />
           </button>
           <Link to="/">
-            <img src={LogoImg} className="w-10 rounded-[15%]" alt="" />
+            <img src={LogoImg} className="w-10 rounded-[15%]" alt="Logo" />
           </Link>
-          <Link
-            to="/cart"
-            className="flex justify-center items-center flex-col px-4 py-2 rounded"
-          >
-            <img src={CartImg} alt="" />
-          </Link>
+          <div className="flex items-center">
+            <button onClick={() => setIsSearchOpen(true)} className=" rounded">
+              <img src={SearchImg} alt="Search" />
+            </button>
+            <Link
+              to="/cart"
+              className="flex justify-center items-center flex-col px-4 py-2 rounded"
+            >
+              <img src={CartImg} alt="Cart" />
+            </Link>
+          </div>
         </header>
 
         <main className="mt-20">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/cart" element={<Cart />} />
-            <Route path="/admin" element={<AdminPanel />} />{" "}
+            <Route path="/admin" element={<AdminPanel />} />
           </Routes>
         </main>
 
@@ -80,7 +84,7 @@ function App() {
             isMenuOpen ? "translate-x-0" : "translate-x-[120%]"
           }`}
         >
-          <img src={CancelImg} alt="" />
+          <img src={CancelImg} alt="Cancel" />
         </div>
         <div
           className={`fixed inset-1 left-0 top-0 w-[250px] h-full duration-300 ${
@@ -89,6 +93,8 @@ function App() {
         >
           {isMenuOpen && <MenuModal setIsMenuOpen={setIsMenuOpen} />}
         </div>
+
+        {/* Qidiruv Modalini ko‘rsatish */}
         {isSearchOpen && <SearchModal setIsSearchOpen={setIsSearchOpen} />}
         {isOrderOpen && <OrderModal setIsOrderOpen={setIsOrderOpen} />}
       </div>
