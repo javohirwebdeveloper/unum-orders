@@ -29,14 +29,18 @@ function App() {
   if (isLoading) {
     return (
       <div className="fixed bg-[#095946] inset-0 flex items-center justify-center z-50">
-        <img src={LoadingImg} alt="Loading..." className=" w-36 h-36" />
+        <img
+          src="https://i.imgur.com/Pimpt94.png"
+          alt="Loading..."
+          className=" w-36 h-36"
+        />
       </div>
     );
   }
 
   return (
     <Router>
-      <div className="p-4 text-[#27214D] bg-[#F9F9F9]">
+      <div className="p-4 text-[#27214D] ">
         <header className="flex [bg-[#F9F9F9] top-0 pt-2 fixed w-full pr-8 justify-between items-center mb-4">
           <button
             onClick={() => setIsMenuOpen(true)}
