@@ -16,6 +16,7 @@ import LogoImg from "./assets/Logo.svg";
 import LoadingImg from "./assets/Logo.svg";
 import { FiShoppingCart } from "react-icons/fi";
 import OrdersPage from "./pages/OrdersPage";
+import Likes from "./pages/Likes";
 function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -43,7 +44,7 @@ function App() {
 
   return (
     <Router>
-      <div className="p-3 text-[#27214D] ">
+      <div className="p-3 pb-40 text-[#27214D] ">
         <header className="flex z-10 bg-[white] top-0 pt-2 px-2 fixed w-full justify-between items-center mb-4">
           <button onClick={() => setIsMenuOpen(true)} className=" rounded">
             <img src={MenuImg} alt="Menu" />
@@ -74,6 +75,7 @@ function App() {
             />
 
             <Route path="/admin" element={<AdminPanel />} />
+            <Route path="/likes" element={<Likes />} />
           </Routes>
         </main>
 

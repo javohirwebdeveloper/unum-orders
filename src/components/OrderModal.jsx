@@ -3,6 +3,7 @@ import { db } from "../firebase"; // Firebase configuration
 import { collection, addDoc } from "firebase/firestore";
 import Tick from "../assets/tick.svg";
 import { Link } from "react-router-dom";
+import CancelImg from "../assets/Cancel.svg";
 
 const OrderModal = ({ setIsOrderOpen, orderDetails }) => {
   const [quantities, setQuantities] = useState(orderDetails.map(() => 1));
@@ -103,15 +104,15 @@ const OrderModal = ({ setIsOrderOpen, orderDetails }) => {
   );
 
   return (
-    <div className="fixed inset-0 z-10 bg-gray-900 bg-opacity-50 flex justify-center items-center px-4">
-      <div className="bg-white p-6 rounded-lg w-full max-w-lg">
+    <div className="fixed inset-0 pb-5 z-10 bg-gray-900 bg-opacity-50 flex justify-center items-center px-4">
+      <div className="bg-white relative p-6 rounded-lg w-full max-w-lg max-h-[80vh] overflow-y-auto">
         <button
           onClick={() => setIsOrderOpen(false)}
-          className="bg-red-500 text-white px-4 py-2 rounded"
+          className="absolute right-0 top-0"
         >
-          Yopish
+          <img src={CancelImg} alt="" />
         </button>
-        <h2 className="text-xl mt-4 mb-4">Buyurtma berish</h2>
+        <h2 className="text-xl mt-1 mb-4">Buyurtma berish</h2>
 
         <table className="w-full mb-4 border-collapse border border-gray-300 text-sm">
           <thead>
