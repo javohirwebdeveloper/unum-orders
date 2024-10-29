@@ -17,6 +17,7 @@ const OrderModal = ({ setIsOrderOpen, orderDetails }) => {
     setLoading(true);
     setErrors({ name: "", phone: "", address: "" });
 
+    // Validate form inputs
     if (!name) {
       setErrors((prev) => ({
         ...prev,
@@ -41,6 +42,7 @@ const OrderModal = ({ setIsOrderOpen, orderDetails }) => {
     }
 
     try {
+      // Create a unique order ID
       const orderId = `order_${Date.now()}`;
       const orderData = {
         id: orderId,
@@ -58,11 +60,16 @@ const OrderModal = ({ setIsOrderOpen, orderDetails }) => {
         createdAt: new Date(),
       };
 
+      // Add order to Firebase
       await addDoc(collection(db, "orders"), orderData);
 
+      // Save the order ID and customer name to local storage
       const existingOrders = JSON.parse(localStorage.getItem("orders")) || [];
       existingOrders.push(orderId);
       localStorage.setItem("orders", JSON.stringify(existingOrders));
+      localStorage.setItem("orderCustomerName", name); // Save the customer name
+
+      // Show success message and close modal after a delay
       setShowSuccessModal(true);
       setTimeout(() => {
         setShowSuccessModal(false);

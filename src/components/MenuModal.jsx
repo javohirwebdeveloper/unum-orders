@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 const MenuModal = ({ setIsMenuOpen }) => {
   return (
     <>
-      <div className="bg-white p-6 h-full top-0 ">
+      <div className="bg-white fixed left-0 z-30 inset-0 p-6 h-full top-0 ">
         <ul className="mt-4">
           <li>
             <Link
@@ -15,28 +15,10 @@ const MenuModal = ({ setIsMenuOpen }) => {
               Bosh sahifa
             </Link>
           </li>
-          <li>
-            <Link
-              to="/likes"
-              onClick={() => setIsMenuOpen(false)}
-              className="block py-2"
-            >
-              Yoqqanlar
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="/cart"
-              onClick={() => setIsMenuOpen(false)}
-              className="block py-2"
-            >
-              Savat
-            </Link>
-          </li>
+
           <li>
             <Link to="/admin">Admin</Link>
           </li>
-          <Link to="/sitemap.xml">salom</Link>
         </ul>
       </div>
     </>
