@@ -5,7 +5,7 @@ import Tick from "../assets/tick.svg";
 import { Link } from "react-router-dom";
 import CancelImg from "../assets/Cancel.svg";
 
-const OrderModal = ({ setIsOrderOpen, orderDetails }) => {
+const OrderModal = ({ setIsOrderOpen, orderDetails, clearCart }) => {
   const [quantities, setQuantities] = useState(orderDetails.map(() => 1));
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -43,7 +43,6 @@ const OrderModal = ({ setIsOrderOpen, orderDetails }) => {
     }
 
     try {
-      // Create a unique order ID
       const orderId = `order_${Date.now()}`;
       const orderData = {
         id: orderId,
@@ -52,25 +51,21 @@ const OrderModal = ({ setIsOrderOpen, orderDetails }) => {
           quantity: quantities[index],
           totalPrice: product.price * quantities[index],
         })),
-        user: {
-          name: name,
-          phone: phone,
-          address: address,
-        },
+        user: { name, phone, address },
         status: "pending",
         createdAt: new Date(),
       };
 
-      // Add order to Firebase
       await addDoc(collection(db, "orders"), orderData);
 
-      // Save the order ID and customer name to local storage
       const existingOrders = JSON.parse(localStorage.getItem("orders")) || [];
       existingOrders.push(orderId);
       localStorage.setItem("orders", JSON.stringify(existingOrders));
-      localStorage.setItem("orderCustomerName", name); // Save the customer name
+      localStorage.setItem("orderCustomerName", name);
 
-      // Show success message and close modal after a delay
+      // Clear the cart after successful order
+      clearCart();
+
       setShowSuccessModal(true);
       setTimeout(() => {
         setShowSuccessModal(false);
@@ -104,89 +99,101 @@ const OrderModal = ({ setIsOrderOpen, orderDetails }) => {
   );
 
   return (
-    <div className="fixed inset-0 pb-5 z-10 bg-gray-900 bg-opacity-50 flex justify-center items-center px-4">
-      <div className="bg-white relative p-6 rounded-lg w-full max-w-lg max-h-[80vh] overflow-y-auto">
+    <div className="fixed inset-0 z-10 bg-gray-900 bg-opacity-60 flex justify-center items-center px-4">
+      <div className="bg-white relative p-6 rounded-lg shadow-lg w-full max-w-md">
         <button
           onClick={() => setIsOrderOpen(false)}
-          className="absolute right-0 top-0"
+          className="absolute top-2 right-2 p-1 hover:bg-gray-200 rounded"
         >
-          <img src={CancelImg} alt="" />
+          <img src={CancelImg} alt="Cancel" className="w-5" />
         </button>
-        <h2 className="text-xl mt-1 mb-4">Buyurtma berish</h2>
+        <h2 className="text-2xl font-semibold text-gray-800 mt-2 mb-4">
+          Buyurtma berish
+        </h2>
 
-        <table className="w-full mb-4 border-collapse border border-gray-300 text-sm">
-          <thead>
-            <tr className="text-left bg-gray-200">
-              <th className="p-2 border">Nomi</th>
-              <th className="p-2 border">Soni</th>
-              <th className="p-2 border">Narxi</th>
-            </tr>
-          </thead>
-          <tbody>
-            {orderDetails.map((product, index) => (
-              <tr key={product.id}>
-                <td className="p-2 border">{product.name}</td>
-                <td className="p-2 border flex justify-between items-center">
-                  <button
-                    onClick={() => decrementQuantity(index)}
-                    className="px-2 py-1 border"
-                  >
-                    -
-                  </button>
-                  <span className="px-2">{quantities[index]}</span>
-                  <button
-                    onClick={() => incrementQuantity(index)}
-                    className="px-2 py-1 border"
-                  >
-                    +
-                  </button>
-                </td>
-                <td className="p-2 border">
-                  {product.price * quantities[index]} сум
-                </td>
+        <div className="border rounded-lg overflow-hidden mb-4">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-gray-100 text-gray-600">
+                <th className="p-2">Nomi</th>
+                <th className="p-2">Soni</th>
+                <th className="p-2">Narxi</th>
               </tr>
-            ))}
-          </tbody>
-          <tfoot>
-            <tr className="font-semibold">
-              <td className="p-2 border">Jami</td>
-              <td className="p-2 border"></td>
-              <td className="p-2 border">{totalAmount} сум</td>
-            </tr>
-          </tfoot>
-        </table>
+            </thead>
+            <tbody>
+              {orderDetails.map((product, index) => (
+                <tr key={product.id} className="border-t">
+                  <td className="p-2">{product.name}</td>
+                  <td className="p-2 flex items-center">
+                    <button
+                      onClick={() => decrementQuantity(index)}
+                      className="px-2 py-1 border rounded-l hover:bg-gray-200"
+                    >
+                      -
+                    </button>
+                    <span className="px-3">{quantities[index]}</span>
+                    <button
+                      onClick={() => incrementQuantity(index)}
+                      className="px-2 py-1 border rounded-r hover:bg-gray-200"
+                    >
+                      +
+                    </button>
+                  </td>
+                  <td className="p-2">
+                    {product.price * quantities[index]} сум
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+            <tfoot>
+              <tr className="font-semibold">
+                <td className="p-2">Jami</td>
+                <td className="p-2"></td>
+                <td className="p-2">{totalAmount} сум</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
 
-        <input
-          type="text"
-          placeholder="Ism va familiya"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="w-full px-4 py-2 border my-2 rounded-lg"
-        />
-        {errors.name && <p className="text-red-500">{errors.name}</p>}
+        <div className="space-y-3 mb-4">
+          <input
+            type="text"
+            placeholder="Ism va familiya"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full px-4 py-2 border rounded-lg"
+          />
+          {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
 
-        <input
-          type="tel"
-          placeholder="Mobil raqam"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          className="w-full px-4 py-2 border my-2 rounded-lg"
-        />
-        {errors.phone && <p className="text-red-500">{errors.phone}</p>}
+          <input
+            type="tel"
+            placeholder="Mobil raqam"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            className="w-full px-4 py-2 border rounded-lg"
+          />
+          {errors.phone && (
+            <p className="text-red-500 text-sm">{errors.phone}</p>
+          )}
 
-        <input
-          type="text"
-          placeholder="Manzil"
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
-          className="w-full px-4 py-2 border my-2 rounded-lg"
-        />
-        {errors.address && <p className="text-red-500">{errors.address}</p>}
+          <input
+            type="text"
+            placeholder="Iltimos aniq uy manzilingizni kiriting!"
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
+            className="w-full px-4 py-2 border rounded-lg"
+          />
+          {errors.address && (
+            <p className="text-red-500 text-sm">{errors.address}</p>
+          )}
+        </div>
 
         <button
           onClick={handleOrder}
-          className={`bg-blue-500 text-white px-4 py-2 rounded w-full mt-4 ${
-            loading ? "opacity-50 cursor-not-allowed" : ""
+          className={`w-full py-2 rounded-lg text-white ${
+            loading
+              ? "bg-blue-400 cursor-not-allowed"
+              : "bg-blue-600 hover:bg-blue-700"
           }`}
           disabled={loading}
         >
@@ -195,15 +202,15 @@ const OrderModal = ({ setIsOrderOpen, orderDetails }) => {
       </div>
 
       {showSuccessModal && (
-        <div className="fixed inset-0 bg-white z-20 flex flex-col justify-center items-center">
-          <img src={Tick} alt="" className="w-20 mb-4" />
-          <p className="text-green-500 text-xl font-bold">
+        <div className="fixed inset-0 bg-white z-20 flex flex-col justify-center items-center p-4">
+          <img src={Tick} alt="" className="w-16 mb-4" />
+          <p className="text-green-500 text-xl font-bold mb-2">
             Buyurtma muvaffaqiyatli joylandi!
           </p>
           <p className="text-gray-600 mb-4">Bir kun ichida yetkazib beramiz</p>
           <Link
             to="/"
-            className="bg-[#FFA451] cursor-pointer font-bold text-center w-full py-4 text-white"
+            className="bg-orange-500 text-white py-2 px-4 rounded-lg hover:bg-orange-600"
           >
             ORTGA QAYTISH
           </Link>

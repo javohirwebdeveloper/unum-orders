@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { db } from "../firebase";
-import { collection, addDoc } from "firebase/firestore";
 import OrderModal from "../components/OrderModal";
 
-const Cart = ({ setCart }) => {
+const Cart = () => {
   const [cart, setLocalCart] = useState([]);
   const [isOrderOpen, setIsOrderOpen] = useState(false);
   const [orderDetails, setOrderDetails] = useState(null);
@@ -24,41 +23,28 @@ const Cart = ({ setCart }) => {
     setIsOrderOpen(true);
   };
 
-  const placeOrder = async () => {
-    try {
-      // Buyurtma Firebase'ga qo'shish
-      const orderRef = await addDoc(collection(db, "orders"), {
-        products: cart,
-        createdAt: new Date(),
-      });
-
-      // Buyurtma nomini localStorage'ga saqlash
-      localStorage.setItem("orderName", orderRef.id);
-
-      // Cartni tozalash
-      setLocalCart([]);
-      localStorage.removeItem("cart");
-      setIsOrderOpen(false);
-    } catch (error) {
-      console.error("Buyurtma joylashda xatolik:", error);
-    }
+  const clearCart = () => {
+    setLocalCart([]);
+    localStorage.removeItem("cart");
   };
 
   return (
-    <div className="p-4">
-      <h2 className="text-lg font-bold mb-4">Savat</h2>
+    <div className="p-4 bg-gray-100 min-h-screen">
+      <h2 className="text-2xl font-semibold mb-6 text-gray-700">Savat</h2>
       {cart.length === 0 ? (
-        <p className="text-center">Hech qanday mahsulot yo'q.</p>
+        <p className="text-center text-gray-500">Hech qanday mahsulot yo'q.</p>
       ) : (
-        <div>
+        <div className="space-y-4">
           {cart.map((product) => (
             <div
               key={product.id}
-              className="flex justify-between items-center border-b py-2"
+              className="flex justify-between items-center bg-white p-4 rounded-lg shadow"
             >
               <div>
-                <h3 className="font-semibold">{product.name}</h3>
-                <p>{product.price} сум</p>
+                <h3 className="text-lg font-semibold text-gray-800">
+                  {product.name}
+                </h3>
+                <p className="text-gray-600">{product.price} сум</p>
               </div>
               <button
                 onClick={() => handleRemoveFromCart(product)}
@@ -70,7 +56,7 @@ const Cart = ({ setCart }) => {
           ))}
           <button
             onClick={handleOrderClick}
-            className="mt-4 bg-[#FFA451] text-white py-2 px-4 rounded"
+            className="w-full py-2 mt-4 text-white bg-orange-500 rounded-lg hover:bg-orange-600"
           >
             Buyurtma berish
           </button>
@@ -79,7 +65,8 @@ const Cart = ({ setCart }) => {
       {isOrderOpen && (
         <OrderModal
           setIsOrderOpen={setIsOrderOpen}
-          orderDetails={orderDetails} // orderDetails to'g'ri uzatilmoqda
+          orderDetails={orderDetails}
+          clearCart={clearCart}
         />
       )}
     </div>
