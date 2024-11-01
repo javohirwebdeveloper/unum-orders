@@ -8,6 +8,7 @@ import {
   deleteDoc,
   doc,
 } from "firebase/firestore";
+import { NavLink } from "react-router-dom";
 
 const AdminPanel = () => {
   const [products, setProducts] = useState([]);
@@ -150,6 +151,7 @@ const AdminPanel = () => {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-6 text-center">Admin Panel</h1>
+      <NavLink to="/viewOrders">Buyurtmalar</NavLink>
       <form
         onSubmit={handleAddProduct}
         className="bg-white p-6 rounded shadow-md mb-6"

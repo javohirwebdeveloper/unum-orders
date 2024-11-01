@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import $ from "jquery"; // jQuery import
+import $ from "jquery";
 import { db } from "../firebase";
 import { collection, addDoc } from "firebase/firestore";
 import CancelImg from "../assets/Cancel.svg";
@@ -7,73 +7,91 @@ import "./OrderModal.css";
 
 const OrderModal = ({ setIsOrderOpen, orderDetails, clearCart }) => {
   const [quantities, setQuantities] = useState(orderDetails.map(() => 1));
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [address, setAddress] = useState("");
-  const [location, setLocation] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState({
+  const [formData, setFormData] = useState({
     name: "",
     phone: "",
     address: "",
     location: "",
   });
-  const [animate, setAnimate] = useState(false);
+  const [selectedRegion, setSelectedRegion] = useState("");
+  const [locationStatus, setLocationStatus] = useState(
+    "Lokatsiyangizni kiriting!"
+  );
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
 
-  const validateName = (name) => {
-    if (!name.trim()) return "Ism va familiya kiritilishi shart!";
-    if (name.length < 2)
-      return "Ism kamida 2 ta harfdan iborat bo'lishi kerak!";
-    return "";
+  const errorMessages = {
+    name: "Ism va familiya kiritilishi shart!",
+    phone: "Mobil raqam kiritilishi shart!",
+    address: "Manzil kiritilishi shart!",
+    location: "Hududingizni tanlang!",
   };
 
-  const validatePhone = (phone) => {
-    const phoneRegex = /^\+?\d{12}$/;
-    if (!phone) return "Mobil raqam kiritilishi shart!";
-    if (!phoneRegex.test(phone))
-      return "Mobil raqam + bilan 12 gacha raqamlardan iborat bo'lishi kerak!";
-    return "";
+  const validateForm = () => {
+    const newErrors = {};
+    if (!formData.name.trim()) newErrors.name = errorMessages.name;
+    if (!/^\+?\d{12}$/.test(formData.phone))
+      newErrors.phone = errorMessages.phone;
+    if (!formData.address.trim()) newErrors.address = errorMessages.address;
+    if (!selectedRegion) newErrors.location = errorMessages.location;
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
-  const validateAddress = (address) => {
-    if (!address.trim()) return "Manzil kiritilishi shart!";
-    if (address.length < 5)
-      return "Manzil kamida 5 ta belgidan iborat bo'lishi kerak!";
-    return "";
-  };
+  const handleLocationFetch = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async ({ coords: { latitude, longitude } }) => {
+          setFormData((prev) => ({
+            ...prev,
+            location: `${latitude}, ${longitude}`,
+          }));
+          setLocationStatus("Lokatsiya olindi");
 
-  const validateLocation = (location) => {
-    if (!location) return "Hududingizni tanlang!";
-    return "";
-  };
+          try {
+            const response = await fetch(
+              `https://api.opencagedata.com/geocode/v1/json?q=${latitude},${longitude}&key=c0a9c50b92a5406891c1a27ddcabfd3e`
+            );
+            if (!response.ok) throw new Error("API dan xato");
 
-  const isFormValid = () => {
-    const nameError = validateName(name);
-    const phoneError = validatePhone(phone);
-    const addressError = validateAddress(address);
-    const locationError = validateLocation(location);
-
-    setErrors({
-      name: nameError,
-      phone: phoneError,
-      address: addressError,
-      location: locationError,
-    });
-
-    return !nameError && !phoneError && !addressError && !locationError;
+            const data = await response.json();
+            if (data.results.length > 0) {
+              setFormData((prev) => ({
+                ...prev,
+                address: data.results[0].formatted_address,
+              }));
+            } else {
+              alert("Manzil topilmadi!");
+            }
+          } catch (error) {
+            console.error("Geocoding error: ", error);
+            alert("Manzil olishda xato: " + error.message);
+          }
+        },
+        (error) => {
+          console.error("Lokatsiya olishda xato: ", error);
+          alert("Lokatsiya olishda xato: " + error.message);
+        },
+        { timeout: 10000 }
+      );
+    } else {
+      alert("Brauzeringiz lokatsiya olishni qo'llab-quvvatlamaydi.");
+    }
   };
 
   const handleOrder = async () => {
     setLoading(true);
-    setErrors({ name: "", phone: "", address: "", location: "" });
+    setErrors({});
 
-    if (!isFormValid()) {
+    if (!validateForm()) {
       setLoading(false);
       return;
     }
 
     try {
       const orderId = `order_${Date.now()}`;
+      const [latitude, longitude] = formData.location.split(", ").map(Number);
       const orderData = {
         id: orderId,
         products: orderDetails.map((product, index) => ({
@@ -81,47 +99,49 @@ const OrderModal = ({ setIsOrderOpen, orderDetails, clearCart }) => {
           quantity: quantities[index],
           totalPrice: product.price * quantities[index],
         })),
-        user: { name, phone, address, location },
+        user: {
+          name: formData.name,
+          phone: formData.phone,
+          address: formData.address,
+          region: selectedRegion,
+          location: { latitude, longitude },
+        },
         status: "pending",
         createdAt: new Date(),
       };
 
       await addDoc(collection(db, "orders"), orderData);
-
-      const existingOrders = JSON.parse(localStorage.getItem("orders")) || [];
-      existingOrders.push(orderId);
-      localStorage.setItem("orders", JSON.stringify(existingOrders));
-      localStorage.setItem("orderCustomerName", name);
-
+      localStorage.setItem(
+        "orders",
+        JSON.stringify([
+          ...JSON.parse(localStorage.getItem("orders") || "[]"),
+          orderId,
+        ])
+      );
       clearCart();
-      setAnimate(true);
-
-      // Wait for 10 seconds
-      await new Promise((resolve) => setTimeout(resolve, 9000));
-
-      // Close the modal
-      setTimeout(() => {
-        setAnimate(false);
-        setIsOrderOpen(false);
-      }, 0);
+      setIsOrderOpen(false); // Modalni yopish
     } catch (error) {
       console.error("Order placement error: ", error);
-      alert("Xato yuz berdi!");
+      alert("Xato yuz berdi: " + error.message);
     } finally {
       setLoading(false);
     }
   };
 
   const incrementQuantity = (index) => {
-    const newQuantities = [...quantities];
-    newQuantities[index] += 1;
-    setQuantities(newQuantities);
+    setQuantities((prev) => {
+      const newQuantities = [...prev];
+      newQuantities[index] += 1;
+      return newQuantities;
+    });
   };
 
   const decrementQuantity = (index) => {
-    const newQuantities = [...quantities];
-    if (newQuantities[index] > 1) newQuantities[index] -= 1;
-    setQuantities(newQuantities);
+    setQuantities((prev) => {
+      const newQuantities = [...prev];
+      if (newQuantities[index] > 1) newQuantities[index] -= 1;
+      return newQuantities;
+    });
   };
 
   const totalAmount = orderDetails.reduce(
@@ -131,7 +151,7 @@ const OrderModal = ({ setIsOrderOpen, orderDetails, clearCart }) => {
 
   return (
     <div className="fixed inset-0 z-40 bg-gray-900 bg-opacity-60 flex justify-center items-center px-4">
-      <div className="bg-white  relative p-6 rounded-lg shadow-lg w-full max-w-md">
+      <div className="bg-white relative p-6 rounded-lg shadow-lg w-full max-w-md">
         <button
           onClick={() => setIsOrderOpen(false)}
           className="absolute top-2 right-2 p-1 hover:bg-gray-200 rounded"
@@ -141,7 +161,6 @@ const OrderModal = ({ setIsOrderOpen, orderDetails, clearCart }) => {
         <h2 className="text-2xl font-semibold text-gray-800 mt-2 mb-4">
           Buyurtma berish
         </h2>
-
         <div className="border rounded-lg overflow-hidden mb-4">
           <table className="w-full text-sm">
             <thead>
@@ -185,17 +204,12 @@ const OrderModal = ({ setIsOrderOpen, orderDetails, clearCart }) => {
             </tfoot>
           </table>
         </div>
+
         <div className="space-y-3 mb-4">
           <label className="block text-gray-700">Hududingizni tanlang:</label>
           <select
-            value={location}
-            onChange={(e) => {
-              setLocation(e.target.value);
-              setErrors({
-                ...errors,
-                location: validateLocation(e.target.value),
-              });
-            }}
+            value={selectedRegion}
+            onChange={(e) => setSelectedRegion(e.target.value)}
             className={`w-full px-4 py-2 border rounded-lg ${
               errors.location ? "border-red-500" : ""
             }`}
@@ -212,29 +226,25 @@ const OrderModal = ({ setIsOrderOpen, orderDetails, clearCart }) => {
             <p className="text-red-500 text-sm">{errors.location}</p>
           )}
         </div>
+
         <div className="space-y-3 mb-4">
           <input
             type="text"
             placeholder="Ism va familiya"
-            value={name}
-            onChange={(e) => {
-              setName(e.target.value);
-              setErrors({ ...errors, name: validateName(e.target.value) });
-            }}
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             className={`w-full px-4 py-2 border rounded-lg ${
               errors.name ? "border-red-500" : ""
             }`}
           />
           {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
-
           <input
             type="tel"
             placeholder="Mobil raqam"
-            value={phone}
-            onChange={(e) => {
-              setPhone(e.target.value);
-              setErrors({ ...errors, phone: validatePhone(e.target.value) });
-            }}
+            value={formData.phone}
+            onChange={(e) =>
+              setFormData({ ...formData, phone: e.target.value })
+            }
             className={`w-full px-4 py-2 border rounded-lg ${
               errors.phone ? "border-red-500" : ""
             }`}
@@ -245,14 +255,10 @@ const OrderModal = ({ setIsOrderOpen, orderDetails, clearCart }) => {
           <input
             type="text"
             placeholder="Iltimos aniq uy manzilingizni kiriting!"
-            value={address}
-            onChange={(e) => {
-              setAddress(e.target.value);
-              setErrors({
-                ...errors,
-                address: validateAddress(e.target.value),
-              });
-            }}
+            value={formData.address}
+            onChange={(e) =>
+              setFormData({ ...formData, address: e.target.value })
+            }
             className={`w-full px-4 py-2 border rounded-lg ${
               errors.address ? "border-red-500" : ""
             }`}
@@ -260,18 +266,27 @@ const OrderModal = ({ setIsOrderOpen, orderDetails, clearCart }) => {
           {errors.address && (
             <p className="text-red-500 text-sm">{errors.address}</p>
           )}
+          <button
+            onClick={handleLocationFetch}
+            className={`w-full py-2 px-4 rounded-lg font-semibold ${
+              locationStatus === "Lokatsiya olindi"
+                ? "bg-green-500 text-white"
+                : "bg-blue-500 text-white"
+            } mb-4`}
+          >
+            {locationStatus}
+          </button>
         </div>
-        <div className="w-full flex justify-center">
-          {" "}
+
+        <div className="w-full flex justify-center mt-4">
           <button
             className={`order ${loading ? "animate" : ""}`}
             onClick={(e) => {
-              if (!loading && isFormValid()) {
+              if (!loading) {
                 handleOrder();
-                let button = $(e.currentTarget);
-                button.addClass("animate");
+                $(e.currentTarget).addClass("animate");
                 setTimeout(() => {
-                  button.removeClass("animate");
+                  $(e.currentTarget).removeClass("animate");
                 }, 10000);
               }
             }}

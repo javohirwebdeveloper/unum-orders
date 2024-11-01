@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  Link,
+  NavLink,
+} from "react-router-dom";
 import Home from "./pages/Home";
 import Cart from "./pages/Cart";
 import AdminPanel from "./pages/AdminPanel";
@@ -17,6 +23,7 @@ import LoadingImg from "./assets/Logo.svg";
 import { FiShoppingCart } from "react-icons/fi";
 import OrdersPage from "./pages/OrdersPage";
 import Likes from "./pages/Likes";
+import ViewOrdersPage from "./pages/ViewOrderspage";
 function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -73,7 +80,7 @@ function App() {
               path="/cart"
               element={<Cart cart={cart} setCart={setCart} />}
             />
-
+            <Route path="/viewOrders" element={<ViewOrdersPage />} />
             <Route path="/admin" element={<AdminPanel />} />
             <Route path="/likes" element={<Likes />} />
           </Routes>
@@ -110,43 +117,45 @@ function App() {
         {isOrderOpen && <OrderModal setIsOrderOpen={setIsOrderOpen} />}
       </div>
       <div className="navbar fixed bottom-0 bg-white w-full p-3 justify-between z-10 h-[76px] border-t-2 flex items-center shadow-md">
-        <Link
+        <NavLink
           to="/"
-          className={`flex flex-col items-center justify-center transition-all duration-300 ${
-            window.location.pathname === "/" ? "text-red-500" : "text-gray-600"
-          } hover:text-red-500`}
+          className={({ isActive }) =>
+            `flex flex-col items-center justify-center transition-all duration-300 ${
+              isActive ? "text-red-500 font-bold" : "text-gray-600"
+            } hover:text-red-500`
+          }
         >
           <p className="text-[30px]">
             <GoHome />
           </p>
           <span className="text-sm">Home</span>
-        </Link>
+        </NavLink>
 
-        <Link
+        <NavLink
           to="/cart"
-          className={`flex flex-col items-center justify-center transition-all duration-300 ${
-            window.location.pathname === "/cart"
-              ? "text-red-500"
-              : "text-gray-600"
-          } hover:text-red-500`}
+          className={({ isActive }) =>
+            `flex flex-col items-center justify-center transition-all duration-300 ${
+              isActive ? "text-red-500 font-bold" : "text-gray-600"
+            } hover:text-red-500`
+          }
         >
           <p className="text-[30px]">
             <FiShoppingCart />
           </p>
           <span className="text-sm">Savat</span>
-        </Link>
+        </NavLink>
 
-        <Link
+        <NavLink
           to="/orders"
-          className={`flex flex-col items-center justify-center transition-all duration-300 ${
-            window.location.pathname === "/orders"
-              ? "text-red-500"
-              : "text-gray-600"
-          } hover:text-red-500`}
+          className={({ isActive }) =>
+            `flex flex-col items-center justify-center transition-all duration-300 ${
+              isActive ? "text-red-500 font-bold" : "text-gray-600"
+            } hover:text-red-500`
+          }
         >
-          <img src={CartImg} className="w-8" alt="" />
+          <img src={CartImg} className="w-8" alt="Orders" />
           <span className="text-sm">Buyurtmalar</span>
-        </Link>
+        </NavLink>
       </div>
     </Router>
   );
