@@ -29,37 +29,47 @@ const Cart = () => {
   };
 
   return (
-    <div className="p-4 bg-gray-100 min-h-screen">
-      <h2 className="text-2xl font-semibold mb-6 text-gray-700">Savat</h2>
+    <div className="p-6 bg-gray-50 min-h-screen">
+      <h2 className="text-3xl font-bold mb-8 text-gray-800">Savat</h2>
       {cart.length === 0 ? (
-        <p className="text-center text-gray-500">Hech qanday mahsulot yo'q.</p>
+        <p className="text-center text-gray-500 text-lg">
+          Hech qanday mahsulot yo'q.
+        </p>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-6">
           {cart.map((product) => (
             <div
               key={product.id}
-              className="flex justify-between items-center bg-white p-4 rounded-lg shadow"
+              className="flex justify-between items-center bg-white p-5 rounded-lg shadow-md hover:shadow-lg transition duration-300"
             >
               <div>
-                <h3 className="text-lg font-semibold text-gray-800">
+                <h3 className="text-xl font-semibold text-gray-800">
                   {product.name}
                 </h3>
-                <p className="text-gray-600">{product.price} сум</p>
+                <p className="text-gray-600 text-lg">{product.price} сум</p>
               </div>
               <button
                 onClick={() => handleRemoveFromCart(product)}
-                className="text-red-500 hover:text-red-700"
+                className="text-red-600 hover:text-red-800 transition duration-300"
               >
                 O'chirish
               </button>
             </div>
           ))}
-          <button
-            onClick={handleOrderClick}
-            className="w-full py-2 mt-4 text-white bg-orange-500 rounded-lg hover:bg-orange-600"
-          >
-            Buyurtma berish
-          </button>
+          <div className="flex justify-between items-center mt-4">
+            <button
+              onClick={handleOrderClick}
+              className="w-full py-3 text-lg text-white bg-orange-500 rounded-lg hover:bg-orange-600 transition duration-300"
+            >
+              Buyurtma berish
+            </button>
+            <button
+              onClick={clearCart}
+              className="ml-4 py-3 text-lg text-white bg-gray-400 rounded-lg hover:bg-gray-500 transition duration-300"
+            >
+              Savatni tozalash
+            </button>
+          </div>
         </div>
       )}
       {isOrderOpen && (

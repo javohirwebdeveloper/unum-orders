@@ -109,37 +109,43 @@ function App() {
         {isSearchOpen && <SearchModal setIsSearchOpen={setIsSearchOpen} />}
         {isOrderOpen && <OrderModal setIsOrderOpen={setIsOrderOpen} />}
       </div>
-      <div className="navbar fixed bottom-0 bg-[white] w-full p-3 justify-between z-10 h-[76px] border-t-2 flex items-center">
-        <Link to="/" className={`flex justify-center flex-col items-center`}>
+      <div className="navbar fixed bottom-0 bg-white w-full p-3 justify-between z-10 h-[76px] border-t-2 flex items-center shadow-md">
+        <Link
+          to="/"
+          className={`flex flex-col items-center justify-center transition-all duration-300 ${
+            window.location.pathname === "/" ? "text-red-500" : "text-gray-600"
+          } hover:text-red-500`}
+        >
           <p className="text-[30px]">
             <GoHome />
           </p>
-          Home
+          <span className="text-sm">Home</span>
         </Link>
-        <Link
-          to="/likes"
-          className={`flex justify-center flex-col items-center`}
-        >
-          <p className="text-[30px]">
-            <IoMdHeartEmpty />
-          </p>
-          Yoqqanlar
-        </Link>
+
         <Link
           to="/cart"
-          className={`flex justify-center flex-col items-center`}
+          className={`flex flex-col items-center justify-center transition-all duration-300 ${
+            window.location.pathname === "/cart"
+              ? "text-red-500"
+              : "text-gray-600"
+          } hover:text-red-500`}
         >
           <p className="text-[30px]">
             <FiShoppingCart />
-          </p>{" "}
-          Savat
+          </p>
+          <span className="text-sm">Savat</span>
         </Link>
+
         <Link
           to="/orders"
-          className={`flex justify-center flex-col items-center`}
+          className={`flex flex-col items-center justify-center transition-all duration-300 ${
+            window.location.pathname === "/orders"
+              ? "text-red-500"
+              : "text-gray-600"
+          } hover:text-red-500`}
         >
           <img src={CartImg} className="w-8" alt="" />
-          Buyurtmalar
+          <span className="text-sm">Buyurtmalar</span>
         </Link>
       </div>
     </Router>

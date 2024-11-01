@@ -152,39 +152,40 @@ const Home = () => {
           Oziq-ovqat mahsulotlari
         </button>
       </div>
-
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {filteredProducts.length > 0 ? (
           filteredProducts.map((product) => (
             <div
               key={product.id}
-              className="border relative p-2 sm:p-4 rounded-lg shadow-lg h-full"
+              className="border rounded-lg shadow-lg flex flex-col p-4 h-full"
             >
-              <img
-                src={product.image}
-                alt={product.name}
-                className="w-full object-cover mb-2 sm:mb-4 rounded-lg"
-              />
-              <h3 className="text-base sm:text-lg font-bold mb-1 sm:mb-2">
+              <div className="relative">
+                <img
+                  src={product.image}
+                  alt={product.name}
+                  className="w-full h-48 object-cover mb-2 rounded-lg"
+                />
+                <button
+                  onClick={() => toggleLike(product)}
+                  className="absolute top-2 right-2 flex items-center bg-white border border-gray-300 rounded-full p-2 shadow-md hover:bg-gray-100 transition duration-200"
+                >
+                  <h1 className="text-sm">{product.likesCount}</h1>
+                  {likedProducts.includes(product.id) ? (
+                    <IoMdHeart className="text-red-600 ml-1" />
+                  ) : (
+                    <IoMdHeartEmpty className="text-gray-500 ml-1" />
+                  )}
+                </button>
+              </div>
+              <h3 className="text-lg md:text-xl font-bold mb-2">
                 {product.name}
               </h3>
-              <p className="text-xs sm:text-sm text-gray-700 mb-1 sm:mb-2">
+              <p className="text-sm md:text-base text-gray-700 mb-1">
                 {product.description}
               </p>
-              <p className="text-sm sm:text-md font-semibold mb-1 sm:mb-2 text-[#F08626]">
+              <p className="text-sm font-semibold text-[#F08626] mb-1">
                 {formatPrice(product.price)} сум
               </p>
-              <button
-                onClick={() => toggleLike(product)}
-                className={`absolute right-1 flex items-center gap-[2px] bg-[white] border p-1 rounded-lg top-1 font-semibold text-xs sm:text-sm px-3 py-2`}
-              >
-                <h1 className="text-[15px]">{product.likesCount}</h1>
-                {likedProducts.includes(product.id) ? (
-                  <IoMdHeart className="text-red-600 text-[20px]" />
-                ) : (
-                  <IoMdHeartEmpty className="text-gray-500 text-[20px]" />
-                )}
-              </button>
               <button
                 onClick={() => addToCart(product)}
                 className={`w-full font-semibold text-xs sm:text-sm ${

@@ -1,43 +1,73 @@
 import React, { useState } from "react";
-import { db } from "../firebase"; // Firebase configuration
+import $ from "jquery"; // jQuery import
+import { db } from "../firebase";
 import { collection, addDoc } from "firebase/firestore";
-import Tick from "../assets/tick.svg";
-import { Link } from "react-router-dom";
 import CancelImg from "../assets/Cancel.svg";
+import "./OrderModal.css";
 
 const OrderModal = ({ setIsOrderOpen, orderDetails, clearCart }) => {
   const [quantities, setQuantities] = useState(orderDetails.map(() => 1));
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
+  const [location, setLocation] = useState("");
   const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState({ name: "", phone: "", address: "" });
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [errors, setErrors] = useState({
+    name: "",
+    phone: "",
+    address: "",
+    location: "",
+  });
+  const [animate, setAnimate] = useState(false);
+
+  const validateName = (name) => {
+    if (!name.trim()) return "Ism va familiya kiritilishi shart!";
+    if (name.length < 2)
+      return "Ism kamida 2 ta harfdan iborat bo'lishi kerak!";
+    return "";
+  };
+
+  const validatePhone = (phone) => {
+    const phoneRegex = /^\+?\d{12}$/;
+    if (!phone) return "Mobil raqam kiritilishi shart!";
+    if (!phoneRegex.test(phone))
+      return "Mobil raqam + bilan 12 gacha raqamlardan iborat bo'lishi kerak!";
+    return "";
+  };
+
+  const validateAddress = (address) => {
+    if (!address.trim()) return "Manzil kiritilishi shart!";
+    if (address.length < 5)
+      return "Manzil kamida 5 ta belgidan iborat bo'lishi kerak!";
+    return "";
+  };
+
+  const validateLocation = (location) => {
+    if (!location) return "Hududingizni tanlang!";
+    return "";
+  };
+
+  const isFormValid = () => {
+    const nameError = validateName(name);
+    const phoneError = validatePhone(phone);
+    const addressError = validateAddress(address);
+    const locationError = validateLocation(location);
+
+    setErrors({
+      name: nameError,
+      phone: phoneError,
+      address: addressError,
+      location: locationError,
+    });
+
+    return !nameError && !phoneError && !addressError && !locationError;
+  };
 
   const handleOrder = async () => {
     setLoading(true);
-    setErrors({ name: "", phone: "", address: "" });
+    setErrors({ name: "", phone: "", address: "", location: "" });
 
-    // Validate form inputs
-    if (!name) {
-      setErrors((prev) => ({
-        ...prev,
-        name: "Ism va familiya kiritilishi shart!",
-      }));
-      setLoading(false);
-      return;
-    }
-    if (!/^\+?\d{12}$/.test(phone)) {
-      setErrors((prev) => ({
-        ...prev,
-        phone:
-          "Mobil raqam + bilan 12 gacha raqamlardan iborat bo'lishi kerak!",
-      }));
-      setLoading(false);
-      return;
-    }
-    if (!address) {
-      setErrors((prev) => ({ ...prev, address: "Manzil kiritilishi shart!" }));
+    if (!isFormValid()) {
       setLoading(false);
       return;
     }
@@ -51,7 +81,7 @@ const OrderModal = ({ setIsOrderOpen, orderDetails, clearCart }) => {
           quantity: quantities[index],
           totalPrice: product.price * quantities[index],
         })),
-        user: { name, phone, address },
+        user: { name, phone, address, location },
         status: "pending",
         createdAt: new Date(),
       };
@@ -63,14 +93,17 @@ const OrderModal = ({ setIsOrderOpen, orderDetails, clearCart }) => {
       localStorage.setItem("orders", JSON.stringify(existingOrders));
       localStorage.setItem("orderCustomerName", name);
 
-      // Clear the cart after successful order
       clearCart();
+      setAnimate(true);
 
-      setShowSuccessModal(true);
+      // Wait for 10 seconds
+      await new Promise((resolve) => setTimeout(resolve, 9000));
+
+      // Close the modal
       setTimeout(() => {
-        setShowSuccessModal(false);
+        setAnimate(false);
         setIsOrderOpen(false);
-      }, 3000);
+      }, 0);
     } catch (error) {
       console.error("Order placement error: ", error);
       alert("Xato yuz berdi!");
@@ -87,9 +120,7 @@ const OrderModal = ({ setIsOrderOpen, orderDetails, clearCart }) => {
 
   const decrementQuantity = (index) => {
     const newQuantities = [...quantities];
-    if (newQuantities[index] > 1) {
-      newQuantities[index] -= 1;
-    }
+    if (newQuantities[index] > 1) newQuantities[index] -= 1;
     setQuantities(newQuantities);
   };
 
@@ -99,8 +130,8 @@ const OrderModal = ({ setIsOrderOpen, orderDetails, clearCart }) => {
   );
 
   return (
-    <div className="fixed inset-0 z-10 bg-gray-900 bg-opacity-60 flex justify-center items-center px-4">
-      <div className="bg-white relative p-6 rounded-lg shadow-lg w-full max-w-md">
+    <div className="fixed inset-0 z-40 bg-gray-900 bg-opacity-60 flex justify-center items-center px-4">
+      <div className="bg-white  relative p-6 rounded-lg shadow-lg w-full max-w-md">
         <button
           onClick={() => setIsOrderOpen(false)}
           className="absolute top-2 right-2 p-1 hover:bg-gray-200 rounded"
@@ -154,14 +185,45 @@ const OrderModal = ({ setIsOrderOpen, orderDetails, clearCart }) => {
             </tfoot>
           </table>
         </div>
-
+        <div className="space-y-3 mb-4">
+          <label className="block text-gray-700">Hududingizni tanlang:</label>
+          <select
+            value={location}
+            onChange={(e) => {
+              setLocation(e.target.value);
+              setErrors({
+                ...errors,
+                location: validateLocation(e.target.value),
+              });
+            }}
+            className={`w-full px-4 py-2 border rounded-lg ${
+              errors.location ? "border-red-500" : ""
+            }`}
+          >
+            <option value="">Hududingizni tanlang</option>
+            <option value="chaqmoq">Chaqmoq</option>
+            <option value="qizilsharq">Qizilsharq</option>
+            <option value="do'stobod">Do'stobod</option>
+            <option value="devyatiy">Devyatiy</option>
+            <option value="pitletka">Pitletka</option>
+            <option value="paxtobod">Paxtobod</option>
+          </select>
+          {errors.location && (
+            <p className="text-red-500 text-sm">{errors.location}</p>
+          )}
+        </div>
         <div className="space-y-3 mb-4">
           <input
             type="text"
             placeholder="Ism va familiya"
             value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="w-full px-4 py-2 border rounded-lg"
+            onChange={(e) => {
+              setName(e.target.value);
+              setErrors({ ...errors, name: validateName(e.target.value) });
+            }}
+            className={`w-full px-4 py-2 border rounded-lg ${
+              errors.name ? "border-red-500" : ""
+            }`}
           />
           {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
 
@@ -169,53 +231,72 @@ const OrderModal = ({ setIsOrderOpen, orderDetails, clearCart }) => {
             type="tel"
             placeholder="Mobil raqam"
             value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            className="w-full px-4 py-2 border rounded-lg"
+            onChange={(e) => {
+              setPhone(e.target.value);
+              setErrors({ ...errors, phone: validatePhone(e.target.value) });
+            }}
+            className={`w-full px-4 py-2 border rounded-lg ${
+              errors.phone ? "border-red-500" : ""
+            }`}
           />
           {errors.phone && (
             <p className="text-red-500 text-sm">{errors.phone}</p>
           )}
-
           <input
             type="text"
             placeholder="Iltimos aniq uy manzilingizni kiriting!"
             value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            className="w-full px-4 py-2 border rounded-lg"
+            onChange={(e) => {
+              setAddress(e.target.value);
+              setErrors({
+                ...errors,
+                address: validateAddress(e.target.value),
+              });
+            }}
+            className={`w-full px-4 py-2 border rounded-lg ${
+              errors.address ? "border-red-500" : ""
+            }`}
           />
           {errors.address && (
             <p className="text-red-500 text-sm">{errors.address}</p>
           )}
         </div>
-
-        <button
-          onClick={handleOrder}
-          className={`w-full py-2 rounded-lg text-white ${
-            loading
-              ? "bg-blue-400 cursor-not-allowed"
-              : "bg-blue-600 hover:bg-blue-700"
-          }`}
-          disabled={loading}
-        >
-          {loading ? "Yuklanmoqda..." : "Buyurtma berish"}
-        </button>
-      </div>
-
-      {showSuccessModal && (
-        <div className="fixed inset-0 bg-white z-20 flex flex-col justify-center items-center p-4">
-          <img src={Tick} alt="" className="w-16 mb-4" />
-          <p className="text-green-500 text-xl font-bold mb-2">
-            Buyurtma muvaffaqiyatli joylandi!
-          </p>
-          <p className="text-gray-600 mb-4">Bir kun ichida yetkazib beramiz</p>
-          <Link
-            to="/"
-            className="bg-orange-500 text-white py-2 px-4 rounded-lg hover:bg-orange-600"
+        <div className="w-full flex justify-center">
+          {" "}
+          <button
+            className={`order ${loading ? "animate" : ""}`}
+            onClick={(e) => {
+              if (!loading && isFormValid()) {
+                handleOrder();
+                let button = $(e.currentTarget);
+                button.addClass("animate");
+                setTimeout(() => {
+                  button.removeClass("animate");
+                }, 10000);
+              }
+            }}
+            disabled={loading}
           >
-            ORTGA QAYTISH
-          </Link>
+            <span className="default">Buyurtma berish</span>
+            <span className="success">
+              Buyurtma joylandi
+              <svg viewBox="0 0 12 10">
+                <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
+              </svg>
+            </span>
+            <div className="box"></div>
+            <div className="truck">
+              <div className="back"></div>
+              <div className="fronts">
+                <div className="window"></div>
+              </div>
+              <div className="light top"></div>
+              <div className="light bottom"></div>
+            </div>
+            <div className="lines"></div>
+          </button>
         </div>
-      )}
+      </div>
     </div>
   );
 };

@@ -1,0 +1,40 @@
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+}
+h3 {
+  font-size: 1.25rem; /* Default size */
+}
+
+p {
+  font-size: 0.875rem; /* Default size */
+}
+
+/* Media Query for larger screens */
+@media (min-width: 768px) {
+  h3 {
+    font-size: 1.5rem;
+  }
+
+  p {
+    font-size: 1rem;
+  }
+}
+.product-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Keeps space consistent */
+  height: 100%; /* Ensures all cards are the same height */
+  min-height: 300px; /* Set a minimum height */
+}
+
+.product-image {
+  width: 100%;
+  height: 200px; /* Fixed height */
+  object-fit: cover; /* Maintain aspect ratio */
+}
+
+button {
+  width: 100%; /* Ensure buttons take full width */
+}
