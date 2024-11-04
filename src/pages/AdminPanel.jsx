@@ -16,8 +16,8 @@ const AdminPanel = () => {
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [image, setImage] = useState("");
-  const [category, setCategory] = useState(""); // Yangi holat uchun kategoriya
-  const [likesCount, setLikesCount] = useState(0); // LikesCount uchun yangi holat
+  const [category, setCategory] = useState("");
+  const [likesCount, setLikesCount] = useState(0);
   const [editMode, setEditMode] = useState(false);
   const [currentId, setCurrentId] = useState(null);
   const [password, setPassword] = useState("");
@@ -40,23 +40,16 @@ const AdminPanel = () => {
 
   const handleAddProduct = async (e) => {
     e.preventDefault();
-
     if (editMode && currentId) {
       const productRef = doc(db, "products", currentId);
-
-      try {
-        await updateDoc(productRef, {
-          name,
-          description,
-          price: Number(price),
-          image,
-          category,
-          likesCount: Number(likesCount), // likesCount ni yangilash
-        });
-        fetchProducts(); // Yangilanishdan keyin mahsulotlarni yuklash
-      } catch (error) {
-        console.error("Mahsulotni yangilashda xatolik:", error);
-      }
+      await updateDoc(productRef, {
+        name,
+        description,
+        price: Number(price),
+        image,
+        category,
+        likesCount: Number(likesCount),
+      });
     } else {
       await addDoc(collection(db, "products"), {
         name,
@@ -64,10 +57,10 @@ const AdminPanel = () => {
         price: Number(price),
         image,
         category,
-        likesCount: Number(likesCount), // Yangi mahsulot qo'shishda likesCount ni kiritish
+        likesCount: Number(likesCount),
       });
-      fetchProducts();
     }
+    fetchProducts();
     resetForm();
   };
 
@@ -79,24 +72,13 @@ const AdminPanel = () => {
     setPrice(product.price);
     setImage(product.image);
     setCategory(product.category || "");
-    setLikesCount(product.likesCount || 0); // likesCount ni tahrirlashda olish
+    setLikesCount(product.likesCount || 0);
   };
 
   const handleDeleteProduct = async (id) => {
     const productRef = doc(db, "products", id);
     await deleteDoc(productRef);
-    fetchProducts(); // O'chirishdan keyin yangilash
-  };
-
-  const handleLikeProduct = async (id) => {
-    const productRef = doc(db, "products", id);
-    const product = products.find((prod) => prod.id === id);
-
-    // likesCount ni 1 ga oshirish
-    await updateDoc(productRef, {
-      likesCount: product.likesCount + 1,
-    });
-    fetchProducts(); // Yangilanishdan keyin mahsulotlarni yuklash
+    fetchProducts();
   };
 
   const resetForm = () => {
@@ -105,7 +87,7 @@ const AdminPanel = () => {
     setPrice("");
     setImage("");
     setCategory("");
-    setLikesCount(0); // Formani qaytadan tozalashda likesCount ni 0 ga qaytarish
+    setLikesCount(0);
     setEditMode(false);
     setCurrentId(null);
   };
@@ -121,12 +103,12 @@ const AdminPanel = () => {
 
   if (!isAuthenticated) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-blue-800">
         <form
           onSubmit={handleLogin}
-          className="bg-white p-6 rounded shadow-md w-80"
+          className="bg-white p-8 rounded shadow-lg w-80"
         >
-          <h2 className="text-xl font-semibold mb-4 text-center">
+          <h2 className="text-2xl font-semibold mb-4 text-center text-blue-600">
             Admin Panelga Kirish
           </h2>
           <input
@@ -135,11 +117,11 @@ const AdminPanel = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="border border-gray-300 p-2 w-full rounded mb-4"
+            className="border border-gray-300 p-2 w-full rounded mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <button
             type="submit"
-            className="bg-blue-500 text-white p-2 rounded w-full hover:bg-blue-600"
+            className="bg-blue-600 text-white p-2 rounded w-full hover:bg-blue-700 transition"
           >
             Kirish
           </button>
@@ -150,13 +132,20 @@ const AdminPanel = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6 text-center">Admin Panel</h1>
-      <NavLink to="/viewOrders">Buyurtmalar</NavLink>
+      <h1 className="text-3xl font-bold mb-6 text-center text-blue-600">
+        Admin Panel
+      </h1>
+      <NavLink
+        to="/viewOrders"
+        className="text-blue-600 underline mb-4 block text-center"
+      >
+        Buyurtmalar
+      </NavLink>
       <form
         onSubmit={handleAddProduct}
         className="bg-white p-6 rounded shadow-md mb-6"
       >
-        <h2 className="text-xl font-semibold mb-4">
+        <h2 className="text-2xl font-semibold mb-4">
           Mahsulot Qo'shish / Tahrirlash
         </h2>
         <input
@@ -165,7 +154,7 @@ const AdminPanel = () => {
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
-          className="border border-gray-300 p-2 w-full rounded mb-4"
+          className="border border-gray-300 p-2 w-full rounded mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <input
           type="text"
@@ -173,7 +162,7 @@ const AdminPanel = () => {
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           required
-          className="border border-gray-300 p-2 w-full rounded mb-4"
+          className="border border-gray-300 p-2 w-full rounded mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <input
           type="number"
@@ -181,7 +170,7 @@ const AdminPanel = () => {
           value={price}
           onChange={(e) => setPrice(e.target.value)}
           required
-          className="border border-gray-300 p-2 w-full rounded mb-4"
+          className="border border-gray-300 p-2 w-full rounded mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <input
           type="text"
@@ -189,7 +178,7 @@ const AdminPanel = () => {
           value={image}
           onChange={(e) => setImage(e.target.value)}
           required
-          className="border border-gray-300 p-2 w-full rounded mb-4"
+          className="border border-gray-300 p-2 w-full rounded mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <input
           type="text"
@@ -197,7 +186,7 @@ const AdminPanel = () => {
           value={category}
           onChange={(e) => setCategory(e.target.value)}
           required
-          className="border border-gray-300 p-2 w-full rounded mb-4"
+          className="border border-gray-300 p-2 w-full rounded mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <input
           type="number"
@@ -205,11 +194,11 @@ const AdminPanel = () => {
           value={likesCount}
           onChange={(e) => setLikesCount(e.target.value)}
           required
-          className="border border-gray-300 p-2 w-full rounded mb-4"
+          className="border border-gray-300 p-2 w-full rounded mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <button
           type="submit"
-          className="bg-blue-500 text-white p-2 rounded w-full hover:bg-blue-600"
+          className="bg-blue-600 text-white p-2 rounded w-full hover:bg-blue-700 transition"
         >
           {editMode ? "O'zgartirish" : "Qo'shish"}
         </button>
@@ -217,45 +206,47 @@ const AdminPanel = () => {
           <button
             type="button"
             onClick={resetForm}
-            className="bg-red-500 text-white p-2 rounded w-full hover:bg-red-600 mt-2"
+            className="bg-red-600 text-white p-2 rounded w-full hover:bg-red-700 transition mt-2"
           >
             Bekor qilish
           </button>
         )}
       </form>
 
-      <h2 className="text-xl font-semibold mb-4">Mahsulotlar ro'yxati</h2>
+      <h2 className="text-2xl font-semibold mb-4">Mahsulotlar ro'yxati</h2>
       <ul className="space-y-4">
         {products.map((product) => (
           <li
             key={product.id}
-            className="bg-white p-4 rounded shadow-md flex justify-between items-center"
+            className="bg-white p-4 rounded shadow-md flex justify-between items-center transition-transform hover:shadow-lg"
           >
             <div className="flex items-center">
               <img
                 src={product.image}
                 alt={product.name}
-                style={{ width: "50px" }}
-                className="mr-4 rounded"
+                className="w-16 h-16 object-cover rounded mr-4"
               />
               <div>
-                <strong className="block">{product.name}</strong>
-                <span>{product.description}</span> - <em>{product.category}</em>
+                <strong className="block text-lg">{product.name}</strong>
+                <span className="text-gray-600">{product.description}</span>
+                <span className="text-sm text-gray-500">
+                  - <em>{product.category}</em>
+                </span>
               </div>
             </div>
-            <div>
-              <span>{product.price} so'm</span> -{" "}
-              <span>{product.likesCount} likes</span>
-              <div className="ml-4">
+            <div className="text-right">
+              <span className="block text-xl">{product.price} so'm</span>
+              <span className="text-gray-600">{product.likesCount} likes</span>
+              <div className="mt-2 flex justify-end">
                 <button
                   onClick={() => handleEditProduct(product)}
-                  className="bg-yellow-500 text-white p-1 rounded hover:bg-yellow-600 ml-2"
+                  className="bg-yellow-500 text-white p-2 rounded hover:bg-yellow-600 transition mx-1"
                 >
                   Tahrirlash
                 </button>
                 <button
                   onClick={() => handleDeleteProduct(product.id)}
-                  className="bg-red-500 text-white p-1 rounded hover:bg-red-600"
+                  className="bg-red-500 text-white p-2 rounded hover:bg-red-600 transition mx-1"
                 >
                   O'chirish
                 </button>

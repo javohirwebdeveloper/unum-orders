@@ -17,24 +17,32 @@ import CartImg from "./assets/Cart.svg";
 import CancelImg from "./assets/Cancel.svg";
 import { GoHome } from "react-icons/go";
 import MenuImg from "./assets/gamburger.svg";
-import SearchImg from "./assets/Search.svg"; // Qidiruv tugma uchun rasm
+import SearchImg from "./assets/Search.svg";
 import LogoImg from "./assets/Logo.svg";
 import LoadingImg from "./assets/Logo.svg";
 import { FiShoppingCart } from "react-icons/fi";
 import OrdersPage from "./pages/OrdersPage";
 import Likes from "./pages/Likes";
 import ViewOrdersPage from "./pages/ViewOrderspage";
+
 function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isOrderOpen, setIsOrderOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [cart, setCart] = useState([]);
+
+  // Loading effektini boshqarish
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 2000);
     return () => clearTimeout(timer);
+  }, []);
+
+  // Sahifa yuklanganda yuqoriga scroll qilish
+  useEffect(() => {
+    window.scrollTo(0, 0);
   }, []);
 
   if (isLoading) {
@@ -43,7 +51,7 @@ function App() {
         <img
           src="https://i.imgur.com/SdCe2Ui.png"
           alt="Loading..."
-          className=" w-36 h-36"
+          className="w-36 h-36"
         />
       </div>
     );
@@ -53,14 +61,14 @@ function App() {
     <Router>
       <div className="p-3 pb-40 text-[#27214D] ">
         <header className="flex z-10 bg-[white] top-0 pt-2 px-2 fixed w-full justify-between items-center mb-4">
-          <button onClick={() => setIsMenuOpen(true)} className=" rounded">
+          <button onClick={() => setIsMenuOpen(true)} className="rounded">
             <img src={MenuImg} alt="Menu" />
           </button>
           <Link to="/">
             <img src={LogoImg} className="w-10 rounded-[15%]" alt="Logo" />
           </Link>
           <div className="flex items-center">
-            <button onClick={() => setIsSearchOpen(true)} className=" rounded">
+            <button onClick={() => setIsSearchOpen(true)} className="rounded">
               <img src={SearchImg} alt="Search" />
             </button>
             <Link
@@ -112,7 +120,6 @@ function App() {
           {isMenuOpen && <MenuModal setIsMenuOpen={setIsMenuOpen} />}
         </div>
 
-        {/* Qidiruv Modalini ko‘rsatish */}
         {isSearchOpen && <SearchModal setIsSearchOpen={setIsSearchOpen} />}
         {isOrderOpen && <OrderModal setIsOrderOpen={setIsOrderOpen} />}
       </div>

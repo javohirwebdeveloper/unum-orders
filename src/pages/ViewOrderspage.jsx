@@ -5,13 +5,15 @@ import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import CancelImg from "../assets/Cancel.svg";
 import "./ViewOrdersPage.css";
-import "./ViewOrderModal.css";
 
 const ViewOrdersPage = () => {
   const [orders, setOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const apiKey = "c0a9c50b92a5406891c1a27ddcabfd3e"; // OpenCage API kaliti
+  const [selectedRegion, setSelectedRegion] = useState("all");
+  const apiKey = "c0a9c50b92a5406891c1a27ddcabfd3e";
+
+  const regions = ["all", "chaqmoq", "qizilsharq", "do'stobod", "paxtobod"];
 
   const getAddressFromCoordinates = async (latitude, longitude) => {
     const response = await fetch(
@@ -23,11 +25,9 @@ const ViewOrdersPage = () => {
     }
 
     const data = await response.json();
-    if (data.results.length > 0) {
-      return data.results[0].formatted_address; // Aniq manzilni qaytaradi
-    } else {
-      throw new Error("Mavjud manzil topilmadi");
-    }
+    return data.results.length > 0
+      ? data.results[0].formatted_address
+      : "Mavjud manzil topilmadi";
   };
 
   useEffect(() => {
@@ -36,12 +36,7 @@ const ViewOrdersPage = () => {
       const ordersSnapshot = await getDocs(ordersCollection);
       const ordersList = await Promise.all(
         ordersSnapshot.docs.map(async (doc) => {
-          const orderData = {
-            id: doc.id,
-            ...doc.data(),
-          };
-
-          // Lokatsiyadan manzilni olish
+          const orderData = { id: doc.id, ...doc.data() };
           if (orderData.user.location) {
             const { latitude, longitude } = orderData.user.location;
             try {
@@ -58,11 +53,9 @@ const ViewOrdersPage = () => {
               };
             }
           }
-
           return orderData;
         })
       );
-
       setOrders(ordersList);
     };
 
@@ -83,11 +76,8 @@ const ViewOrdersPage = () => {
     const orderRef = doc(db, "orders", orderId);
     try {
       await updateDoc(orderRef, { status: "completed" });
-      setOrders((prevOrders) =>
-        prevOrders.map((order) =>
-          order.id === orderId ? { ...order, status: "completed" } : order
-        )
-      );
+      // Refresh the orders list to reflect the completed status
+      fetchOrders();
       alert("Buyurtma bajarildi!");
     } catch (error) {
       console.error("Xato yuz berdi: ", error);
@@ -95,14 +85,32 @@ const ViewOrdersPage = () => {
     }
   };
 
+  const filteredOrders = orders.filter((order) =>
+    selectedRegion === "all" ? true : order.user.region === selectedRegion
+  );
+
   return (
     <div className="orders-page">
       <h1 className="text-3xl font-bold mb-4">Buyurtmalar</h1>
+      <div className="mb-4">
+        <label className="mr-2">Hudud bo'yicha filtrlash:</label>
+        <select
+          value={selectedRegion}
+          onChange={(e) => setSelectedRegion(e.target.value)}
+          className="border border-gray-300 rounded p-2"
+        >
+          {regions.map((region) => (
+            <option key={region} value={region}>
+              {region.charAt(0).toUpperCase() + region.slice(1)}
+            </option>
+          ))}
+        </select>
+      </div>
       <div className="orders-list">
-        {orders.map((order) => (
+        {filteredOrders.map((order) => (
           <div
             key={order.id}
-            className="order-card"
+            className="order-card transition-transform hover:scale-105 cursor-pointer"
             onClick={() => handleOrderClick(order)}
           >
             <h2 className="font-semibold">{order.user.name}</h2>
@@ -114,11 +122,15 @@ const ViewOrdersPage = () => {
               )}{" "}
               сум
             </p>
+            <p className="text-gray-600">Hudud: {order.user.region}</p>
             <p className="text-gray-500">Status: {order.status}</p>
             {order.status !== "completed" && (
               <button
-                className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
-                onClick={() => handleOrderComplete(order.id)}
+                className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleOrderComplete(order.id);
+                }}
               >
                 Bajarildi
               </button>
