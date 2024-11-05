@@ -1,7 +1,19 @@
 {
   "@context": "https://schema.org",
   "@type": "Organization",
-  "name": "Sizning Kompaniya Nomingiz",
-  "url": "https://www.unummarket.uz/",
-  "logo": "https://i.imgur.com/Pimpt94.png"
+  "name": "Unum Market",
+  "url": "https://www.unummarket.uz",
+  "logo": "https://www.unummarket.uz/Logo.ico",
+  "sameAs": [
+    "https://www.facebook.com/unummarket",
+    "https://www.instagram.com/unummarket",
+    "https://www.instagram.com/unum_market"
+  ],
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "telephone": "+998 (97) 548-07-10",
+    "contactType": "Customer Service",
+    "areaServed": "UZ",
+    "availableLanguage": "uz"
+  }
 }
