@@ -4,6 +4,7 @@ import { collection, getDocs } from "firebase/firestore";
 import OrderModal from "../components/OrderModal";
 import { Helmet } from "react-helmet";
 import { IoMdHeartEmpty, IoMdHeart } from "react-icons/io";
+import Banner from "../assets/Banner.jpg";
 import "./Home.css";
 const Home = ({ cart, setCart }) => {
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -86,11 +87,7 @@ const Home = ({ cart, setCart }) => {
       date: new Date(),
       total: cart.reduce((acc, item) => acc + item.price, 0),
     };
-
-    // Save order to Firebase
     await addDoc(collection(db, "orders"), orderData);
-
-    // Clear cart after order
     setCart([]);
     localStorage.removeItem("cart");
     alert("Sizning buyurtmangiz muvaffaqiyatli joylandi!");
@@ -102,7 +99,10 @@ const Home = ({ cart, setCart }) => {
 
   return (
     <div>
-      <div className="flex flex-wrap gap-4 mb-4 text-[#333333]">
+      <header>
+        <img className=" rounded-[22px]" src={Banner} alt="" />
+      </header>
+      <div className="flex flex-wrap mt-6 gap-4 mb-4 text-[#333333]">
         <button
           onClick={() => handleCategoryChange("all")}
           className={`duration-200 ${
@@ -142,6 +142,16 @@ const Home = ({ cart, setCart }) => {
           } px-[10px] py-[8px] rounded-[30px]`}
         >
           Oziq-ovqat mahsulotlari
+        </button>
+        <button
+          onClick={() => handleCategoryChange("dress")}
+          className={`duration-200 ${
+            selectedCategory === "dress"
+              ? "bg-[#ac7518] text-[white]"
+              : "bg-[#f4f4f4]"
+          } px-[10px] py-[8px] rounded-[30px]`}
+        >
+          Kiyimlar
         </button>
       </div>
 
@@ -309,9 +319,9 @@ h78.747C231.693,100.736,232.77,106.162,232.77,111.694z"
                 onClick={() => addToCart(product)}
                 className={`w-full font-semibold text-xs sm:text-sm ${
                   isInCart(product)
-                    ? "bg-gray-300"
-                    : "bg-[#FFF2E7] text-[#ff9838]"
-                } px-3 py-2 rounded-lg mt-2`}
+                    ? "bg-gray-300 border-gray-500 "
+                    : "bg-[#FFF2E7] border-[#ff9838] text-[#ff9838]"
+                } px-3 py-2 border !text-[16px]   mt-2`}
               >
                 {isInCart(product) ? "Savatda bor" : "Savatga qo'shish"}
               </button>
