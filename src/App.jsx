@@ -32,7 +32,6 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [cart, setCart] = useState([]);
 
-  // Loading effektini boshqarish
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
@@ -40,7 +39,11 @@ function App() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Sahifa yuklanganda yuqoriga scroll qilish
+  useEffect(() => {
+    const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
+    setCart(storedCart);
+  }, []);
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -76,13 +79,14 @@ function App() {
               className="flex justify-center items-center flex-col px-4 py-2 rounded"
             >
               <img src={CartImg} alt="Cart" />
+              {/* You can also show cart count here */}
             </Link>
           </div>
         </header>
 
         <main className="mt-20">
           <Routes>
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<Home cart={cart} setCart={setCart} />} />
             <Route path="/orders" element={<OrdersPage />} />
             <Route
               path="/cart"
@@ -94,35 +98,12 @@ function App() {
           </Routes>
         </main>
 
-        {isMenuOpen && (
-          <div
-            onClick={() => setIsMenuOpen(false)}
-            className={`duration-500 z-50 w-full h-full inset-0 left-0 fixed ${
-              isMenuOpen
-                ? "bg-gray-900 bg-opacity-50"
-                : "bg-transparent bg-opacity-0"
-            }`}
-          ></div>
-        )}
-        <div
-          onClick={() => setIsMenuOpen(false)}
-          className={`fixed right-0 z-50 duration-300 top-0 pt-4 pr-4 cursor-pointer ${
-            isMenuOpen ? "translate-x-0" : "translate-x-[120%]"
-          }`}
-        >
-          <img src={CancelImg} alt="Cancel" />
-        </div>
-        <div
-          className={`fixed inset-1 z-50 left-0 top-0 w-[250px] h-full duration-300 ${
-            isMenuOpen ? "translate-x-0" : "-translate-x-[120%]"
-          }`}
-        >
-          {isMenuOpen && <MenuModal setIsMenuOpen={setIsMenuOpen} />}
-        </div>
+        <MenuModal isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />
 
         {isSearchOpen && <SearchModal setIsSearchOpen={setIsSearchOpen} />}
         {isOrderOpen && <OrderModal setIsOrderOpen={setIsOrderOpen} />}
       </div>
+
       <div className="navbar fixed bottom-0 bg-white w-full p-3 justify-between z-10 h-[76px] border-t-2 flex items-center shadow-md">
         <NavLink
           to="/"
@@ -141,11 +122,16 @@ function App() {
         <NavLink
           to="/cart"
           className={({ isActive }) =>
-            `flex flex-col items-center justify-center transition-all duration-300 ${
+            `flex flex-col relative items-center justify-center transition-all duration-300 ${
               isActive ? "text-red-500 font-bold" : "text-gray-600"
             } hover:text-red-500`
           }
         >
+          {cart.length > 0 && (
+            <div className="bg-red-500 absolute right-0 -mt-3 -mr-3 text-[20px] top-0 rounded-full w-6 h-6 flex justify-center items-center text-white">
+              {cart.length}
+            </div>
+          )}
           <p className="text-[30px]">
             <FiShoppingCart />
           </p>
@@ -155,7 +141,7 @@ function App() {
         <NavLink
           to="/orders"
           className={({ isActive }) =>
-            `flex flex-col items-center justify-center transition-all duration-300 ${
+            `flex flex-col relative items-center justify-center transition-all duration-300 ${
               isActive ? "text-red-500 font-bold" : "text-gray-600"
             } hover:text-red-500`
           }

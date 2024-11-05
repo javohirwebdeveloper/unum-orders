@@ -61,9 +61,19 @@ const OrdersPage = () => {
       try {
         const orderDocRef = doc(db, "orders", selectedOrder.orderId);
         await deleteDoc(orderDocRef);
+
+        // Update userOrders state and remove order from localStorage
+        const storedOrders = localStorage.getItem("orders");
+        const orderIds = storedOrders ? storedOrders.split(",") : [];
+        const filteredOrderIds = orderIds.filter(
+          (id) => id !== selectedOrder.orderId
+        );
+        localStorage.setItem("orders", filteredOrderIds.join(","));
+
         setUserOrders((prevOrders) =>
           prevOrders.filter((order) => order.orderId !== selectedOrder.orderId)
         );
+
         setIsModalOpen(false);
         setSelectedOrder(null);
       } catch (error) {

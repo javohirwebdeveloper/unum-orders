@@ -11,11 +11,10 @@ import OrderModal from "../components/OrderModal";
 import { Helmet } from "react-helmet";
 import { IoMdHeartEmpty, IoMdHeart } from "react-icons/io";
 
-const Home = () => {
+const Home = ({ cart, setCart }) => {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [isOrderOpen, setIsOrderOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [cart, setCart] = useState([]);
   const [products, setProducts] = useState([]);
   const [likedProducts, setLikedProducts] = useState([]);
 
@@ -50,16 +49,13 @@ const Home = () => {
       ? products
       : products.filter((product) => product.category === selectedCategory);
 
- 
   const addToCart = (product) => {
     const isProductInCart = cart.some((item) => item.id === product.id);
 
     let updatedCart;
     if (isProductInCart) {
-      // If product is already in the cart, remove it
       updatedCart = cart.filter((item) => item.id !== product.id);
     } else {
-      // If product is not in the cart, add it
       updatedCart = [...cart, product];
     }
 
@@ -165,7 +161,7 @@ const Home = () => {
                   alt={product.name}
                   className="w-full h-48 object-cover mb-2 rounded-lg"
                 />
-                <button
+                {/*<button
                   onClick={() => toggleLike(product)}
                   className="absolute top-2 right-2 flex items-center bg-white border border-gray-300 rounded-full p-2 shadow-md hover:bg-gray-100 transition duration-200"
                 >
@@ -175,7 +171,7 @@ const Home = () => {
                   ) : (
                     <IoMdHeartEmpty className="text-gray-500 ml-1" />
                   )}
-                </button>
+                </button>*/}
               </div>
               <h3 className="text-lg md:text-xl font-bold mb-2">
                 {product.name}
@@ -183,7 +179,7 @@ const Home = () => {
               <p className="text-sm md:text-base text-gray-700 mb-1">
                 {product.description}
               </p>
-              <p className="text-sm font-semibold text-[#F08626] mb-1">
+              <p className="text-sm font-semibold text-[#ff8716] mb-1">
                 {formatPrice(product.price)} сум
               </p>
               <button
@@ -191,7 +187,7 @@ const Home = () => {
                 className={`w-full font-semibold text-xs sm:text-sm ${
                   isInCart(product)
                     ? "bg-gray-300"
-                    : "bg-[#FFF2E7] text-[#FFA451]"
+                    : "bg-[#FFF2E7] text-[#ff9838]"
                 } px-3 py-2 rounded-lg mt-2`}
               >
                 {isInCart(product) ? "Savatda bor" : "Savatga qo'shish"}
