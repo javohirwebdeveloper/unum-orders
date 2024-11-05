@@ -79,12 +79,11 @@ function App() {
               className="flex justify-center items-center flex-col px-4 py-2 rounded"
             >
               <img src={CartImg} alt="Cart" />
-              {/* You can also show cart count here */}
             </Link>
           </div>
         </header>
 
-        <main className="mt-20">
+        <main className="mt-16">
           <Routes>
             <Route path="/" element={<Home cart={cart} setCart={setCart} />} />
             <Route path="/orders" element={<OrdersPage />} />

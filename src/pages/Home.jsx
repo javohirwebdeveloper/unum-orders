@@ -99,6 +99,7 @@ const Home = ({ cart, setCart }) => {
 
   return (
     <div>
+      <h1 className=" text-center !text-[30px]">UNUM MARKET</h1>
       <header>
         <img className=" rounded-[22px]" src={Banner} alt="" />
       </header>
