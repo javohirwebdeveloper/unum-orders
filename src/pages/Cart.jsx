@@ -29,7 +29,7 @@ const Cart = () => {
   };
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
+    <div className="p-6 bg-gray-50 ">
       <h2 className="text-3xl font-bold mb-8 text-gray-800">Savat</h2>
       {cart.length === 0 ? (
         <p className="text-center text-gray-500 text-lg">
@@ -59,7 +59,7 @@ const Cart = () => {
           <div className="flex justify-between items-center mt-4">
             <button
               onClick={handleOrderClick}
-              className="w-full py-3 text-lg text-white bg-orange-500 rounded-lg hover:bg-orange-600 transition duration-300"
+              className="w-full py-3 font-bold text-lg text-white bg-orange-500 rounded-lg hover:bg-orange-600 transition duration-300"
             >
               Buyurtma berish
             </button>
