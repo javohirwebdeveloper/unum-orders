@@ -80,9 +80,9 @@ const SearchModal = ({
                   onClick={() => addToCart(product)}
                   className={`w-full font-semibold text-xs sm:text-sm ${
                     isInCart(product)
-                      ? "bg-gray-300 cursor-not-allowed"
-                      : "bg-[#FFF2E7] text-[#FFA451] hover:bg-[#FFD7A1]"
-                  } px-3 py-2 rounded-lg mt-2`}
+                      ? "bg-gray-300 border-gray-500 "
+                      : "bg-[#FFF2E7] border-[#ff9838] text-[#ff9838]"
+                  } px-3 py-2 border !text-[16px]   mt-2`}
                   disabled={isInCart(product)}
                 >
                   {isInCart(product) ? "Savatda bor" : "Savatga qo'shish"}

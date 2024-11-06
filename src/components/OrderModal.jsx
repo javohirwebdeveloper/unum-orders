@@ -183,7 +183,7 @@ const OrderModal = ({ setIsOrderOpen, orderDetails, clearCart }) => {
             <option value="do'stobod">Do'stobod</option>
             <option value="devyatiy">Devyatiy</option>
             <option value="pitletka">Pitletka</option>
-            <option value="paxtobod">Paxtobod</option>
+            <option value="paxtaobod">Paxtaobod</option>
           </select>
           {errors.location && (
             <p className="text-red-500 text-sm">{errors.location}</p>
