@@ -8,21 +8,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Unum Market: Sifatli mahsulotlar</title>
   <link rel="shortcut icon" type="image/x-icon" href="/Logo.ico">
-
-  <!-- Content Security Policy (CSP) -->
-  <meta http-equiv="Content-Security-Policy" content="
-      default-src 'self';
-      script-src 'self' 'nonce-randomvalue' https://www.googletagmanager.com https://api-maps.yandex.com;
-      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-      font-src 'self' https://fonts.gstatic.com;
-      object-src 'none';
-      img-src 'self' https://i.imgur.com https://www.unummarket.uz;
-      connect-src 'self' https://www.google-analytics.com https://firestore.googleapis.com;
-      child-src 'none';
-    " />
-
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-B91W5C6F9E" nonce="randomvalue"></script>
-  <script nonce="randomvalue">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-B91W5C6F9E"></script>
+  <script>
     window.dataLayer = window.dataLayer || [];
     function gtag() { dataLayer.push(arguments); }
     gtag('js', new Date());
@@ -37,36 +24,37 @@
 
   <!-- Open Graph meta ma'lumotlari -->
   <meta property="og:title" content="Unum Market: Sifatli mahsulotlar" />
-  <meta property="og:description" content="Unum Market - Eng sifatli mahsulotlar va xizmatlar." />
+  <meta property="og:description" content="UNUM MARKET - Eng sifatli mahsulotlar va xizmatlar." />
   <meta property="og:image" content="https://i.imgur.com/Pimpt94.png" />
   <meta property="og:url" content="https://www.unummarket.uz" />
   <meta property="og:type" content="website" />
   <meta name="twitter:image" content="https://i.imgur.com/Pimpt94.png" />
   <meta name="twitter:title" content="Unum Market: Sifatli mahsulotlar" />
-  <meta name="twitter:description" content="Unum Market - Eng sifatli mahsulotlar va xizmatlar." />
-
+  <meta name="twitter:description" content="UNUM MARKET - Eng sifatli mahsulotlar va xizmatlar." />
   <!-- JSON-LD Schema Markup -->
-  <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Organization",
-      "name": "Unum Market",
-      "url": "https://www.unummarket.uz",
-      "logo": "https://www.unummarket.uz/Logo.ico",
-      "sameAs": [
-        "https://www.facebook.com/unummarket",
-        "https://www.instagram.com/unummarket",
-        "https://www.instagram.com/unum_market"
-      ],
-      "contactPoint": {
-        "@type": "ContactPoint",
-        "telephone": "+998 (97) 548-07-10",
-        "contactType": "Customer Service",
-        "areaServed": "UZ",
-        "availableLanguage": "uz"
-      }
-    }
-  </script>
+  <script type="application/ld+json" src="./schema.json">
+          </script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Unum Market",
+  "url": "https://www.unummarket.uz",
+  "logo": "https://www.unummarket.uz/Logo.ico",
+  "sameAs": [
+    "https://www.facebook.com/unummarket",
+    "https://www.instagram.com/unummarket",
+    "https://www.instagram.com/unum_market"
+  ],
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "telephone": "+998 (97) 548-07-10",
+    "contactType": "Customer Service",
+    "areaServed": "UZ",
+    "availableLanguage": "uz"
+  }
+}
+</script>
 
   <!-- CSS fayllarini qo'shish -->
   <link rel="stylesheet" href="/src/App.css" />
@@ -77,11 +65,10 @@
 
 <body>
   <div id="root"></div>
+<script src="https://api-maps.yandex.com/2.1/?apikey=db81466a-d9c7-44dd-9078-c65b363da1c8&lang=uz_UZ"
+  type="text/javascript"></script>
 
-  <script src="https://api-maps.yandex.com/2.1/?apikey=db81466a-d9c7-44dd-9078-c65b363da1c8&lang=uz_UZ"
-    type="text/javascript" nonce="randomvalue"></script>
-
-  <script type="module" src="/src/main.jsx" nonce="randomvalue"></script>
+  <script type="module" src="/src/main.jsx"></script>
 </body>
 
 </html>
