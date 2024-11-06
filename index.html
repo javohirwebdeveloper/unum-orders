@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Unum Market: Sifatli mahsulotlar</title>
   <link rel="shortcut icon" type="image/x-icon" href="/Logo.ico">
-  
+
   <!-- Content Security Policy (CSP) -->
   <meta http-equiv="Content-Security-Policy" content="
       default-src 'self';
@@ -17,11 +17,10 @@
       font-src 'self' https://fonts.gstatic.com;
       object-src 'none';
       img-src 'self' https://i.imgur.com https://www.unummarket.uz;
-      connect-src 'self';
+      connect-src 'self' https://www.google-analytics.com https://firestore.googleapis.com;
       child-src 'none';
-      report-uri /csp-violation-report-endpoint;
     " />
-  
+
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-B91W5C6F9E" nonce="randomvalue"></script>
   <script nonce="randomvalue">
     window.dataLayer = window.dataLayer || [];
@@ -67,7 +66,7 @@
         "availableLanguage": "uz"
       }
     }
-    </script>
+  </script>
 
   <!-- CSS fayllarini qo'shish -->
   <link rel="stylesheet" href="/src/App.css" />
