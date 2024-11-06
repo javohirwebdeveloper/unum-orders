@@ -100,6 +100,18 @@ const Home = ({ cart, setCart }) => {
   return (
     <div>
       <h1 className=" text-center !text-[30px]">UNUM MARKET</h1>
+      <div className="flex justify-between items-center">
+        <a href="tel:+998974012278" className="text-blue-500">
+          +998974012278
+        </a>
+        <a href="tel:+998977228180" className="text-blue-500">
+          +998977228180
+        </a>
+        <a href="tel:+998974648394" className="text-blue-500">
+          +998974648394
+        </a>
+      </div>
+
       <header>
         <img className=" rounded-[22px]" src={Banner} alt="" />
       </header>
