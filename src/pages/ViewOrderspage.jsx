@@ -1,193 +1,308 @@
 import React, { useEffect, useState } from "react";
 import { db } from "../firebase";
-import { collection, getDocs, updateDoc, doc } from "firebase/firestore";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
-import CancelImg from "../assets/Cancel.svg";
-import "./ViewOrdersPage.css";
+import {
+  collection,
+  getDocs,
+  doc,
+  deleteDoc,
+  updateDoc,
+} from "firebase/firestore";
 
 const ViewOrdersPage = () => {
   const [orders, setOrders] = useState([]);
-  const [selectedOrder, setSelectedOrder] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedRegion, setSelectedRegion] = useState("all");
-  const apiKey = "c0a9c50b92a5406891c1a27ddcabfd3e";
-
-  const regions = ["all", "chaqmoq", "qizilsharq", "do'stobod", "paxtobod"];
-
-  const getAddressFromCoordinates = async (latitude, longitude) => {
-    const response = await fetch(
-      `https://api.opencagedata.com/geocode/v1/json?q=${latitude},${longitude}&key=${apiKey}`
-    );
-
-    if (!response.ok) {
-      throw new Error("Geocoding API so'rovida xato yuz berdi");
-    }
-
-    const data = await response.json();
-    return data.results.length > 0
-      ? data.results[0].formatted_address
-      : "Mavjud manzil topilmadi";
-  };
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false); // State for the View Order Modal
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [orderDetails, setOrderDetails] = useState({
+    status: "",
+    quantity: 1,
+  });
 
   useEffect(() => {
     const fetchOrders = async () => {
-      const ordersCollection = collection(db, "orders");
-      const ordersSnapshot = await getDocs(ordersCollection);
-      const ordersList = await Promise.all(
-        ordersSnapshot.docs.map(async (doc) => {
-          const orderData = { id: doc.id, ...doc.data() };
-          if (orderData.user.location) {
-            const { latitude, longitude } = orderData.user.location;
-            try {
-              const address = await getAddressFromCoordinates(
-                latitude,
-                longitude
-              );
-              return { ...orderData, user: { ...orderData.user, address } };
-            } catch (error) {
-              console.error("Geocoding error: ", error);
-              return {
-                ...orderData,
-                user: { ...orderData.user, address: "Manzil topilmadi" },
-              };
-            }
-          }
-          return orderData;
-        })
-      );
-      setOrders(ordersList);
+      const ordersRef = collection(db, "orders");
+      const orderDocs = await getDocs(ordersRef);
+      const fetchedOrders = orderDocs.docs.map((doc) => ({
+        orderId: doc.id,
+        ...doc.data(),
+      }));
+      setOrders(fetchedOrders);
     };
 
     fetchOrders();
   }, []);
 
-  const handleOrderClick = (order) => {
+  const handleCancelOrder = (order) => {
     setSelectedOrder(order);
     setIsModalOpen(true);
   };
 
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setSelectedOrder(null);
-  };
+  const confirmCancelOrder = async () => {
+    if (selectedOrder) {
+      try {
+        const orderDocRef = doc(db, "orders", selectedOrder.orderId);
+        await deleteDoc(orderDocRef);
 
-  const handleOrderComplete = async (orderId) => {
-    const orderRef = doc(db, "orders", orderId);
-    try {
-      await updateDoc(orderRef, { status: "completed" });
-      // Refresh the orders list to reflect the completed status
-      fetchOrders();
-      alert("Buyurtma bajarildi!");
-    } catch (error) {
-      console.error("Xato yuz berdi: ", error);
-      alert("Buyurtma bajarishda xato!");
+        setOrders((prevOrders) =>
+          prevOrders.filter((order) => order.orderId !== selectedOrder.orderId)
+        );
+        setIsModalOpen(false);
+        setSelectedOrder(null);
+      } catch (error) {
+        console.error("Error canceling order:", error);
+        alert("Error canceling order.");
+      }
     }
   };
 
-  const filteredOrders = orders.filter((order) =>
-    selectedRegion === "all" ? true : order.user.region === selectedRegion
-  );
+  const handleEditOrderDetails = (order) => {
+    setOrderDetails({
+      status: order.status,
+      quantity: order.quantity,
+    });
+    setSelectedOrder(order);
+    setIsEditModalOpen(true);
+  };
+
+  const saveOrderDetails = async () => {
+    if (selectedOrder) {
+      try {
+        const orderDocRef = doc(db, "orders", selectedOrder.orderId);
+        await updateDoc(orderDocRef, {
+          status: orderDetails.status,
+          quantity: orderDetails.quantity,
+        });
+
+        setOrders((prevOrders) =>
+          prevOrders.map((order) =>
+            order.orderId === selectedOrder.orderId
+              ? {
+                  ...order,
+                  status: orderDetails.status,
+                  quantity: orderDetails.quantity,
+                }
+              : order
+          )
+        );
+        setIsEditModalOpen(false);
+        setOrderDetails({ status: "", quantity: 1 });
+      } catch (error) {
+        console.error("Error updating order details:", error);
+        alert("Error updating order details.");
+      }
+    }
+  };
+
+  const handleViewOrder = (order) => {
+    setSelectedOrder(order);
+    setIsViewModalOpen(true);
+  };
+
+  const formatPrice = (price) => {
+    console.log(price); // Debugging the price value
+    if (isNaN(price) || price == null) {
+      return "N/A";
+    }
+    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+  };
 
   return (
-    <div className="orders-page">
-      <h1 className="text-3xl font-bold mb-4">Buyurtmalar</h1>
-      <div className="mb-4">
-        <label className="mr-2">Hudud bo'yicha filtrlash:</label>
-        <select
-          value={selectedRegion}
-          onChange={(e) => setSelectedRegion(e.target.value)}
-          className="border border-gray-300 rounded p-2"
-        >
-          {regions.map((region) => (
-            <option key={region} value={region}>
-              {region.charAt(0).toUpperCase() + region.slice(1)}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div className="orders-list">
-        {filteredOrders.map((order) => (
-          <div
-            key={order.id}
-            className="order-card transition-transform hover:scale-105 cursor-pointer"
-            onClick={() => handleOrderClick(order)}
-          >
-            <h2 className="font-semibold">{order.user.name}</h2>
-            <p className="text-gray-600">
-              Jami:{" "}
-              {order.products.reduce(
-                (total, product) => total + product.totalPrice,
-                0
-              )}{" "}
-              сум
-            </p>
-            <p className="text-gray-600">Hudud: {order.user.region}</p>
-            <p className="text-gray-500">Status: {order.status}</p>
-            {order.status !== "completed" && (
-              <button
-                className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleOrderComplete(order.id);
-                }}
-              >
-                Bajarildi
-              </button>
-            )}
-          </div>
-        ))}
-      </div>
-      {isModalOpen && selectedOrder && (
-        <div className="fixed inset-0 z-40 bg-gray-900 bg-opacity-60 flex justify-center items-center px-4">
-          <div className="bg-white relative p-6 rounded-lg shadow-lg w-full max-w-md">
-            <button
-              onClick={closeModal}
-              className="absolute top-2 right-2 p-1 hover:bg-gray-200 rounded"
+    <div className="max-w-5xl mx-auto p-6 bg-white rounded-lg shadow-lg">
+      <h2 className="text-4xl font-bold text-center mb-8">Buyurtmalar</h2>
+      {orders.length > 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          {orders.map((order, index) => (
+            <div
+              key={`${order.orderId}-${index}`}
+              className="bg-gray-50 shadow-md rounded-lg overflow-hidden p-4 flex flex-col justify-between transition-transform hover:scale-105 border-l-4 border-blue-500"
             >
-              <img src={CancelImg} alt="Cancel" className="w-5" />
-            </button>
-            <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-              Buyurtma tafsilotlari
-            </h2>
-            <div className="order-details">
-              <h3 className="font-semibold">Mahsulotlar:</h3>
-              <ul>
-                {selectedOrder.products.map((product, index) => (
-                  <li key={index} className="flex justify-between">
-                    <span>{product.name}</span>
-                    <span>
-                      {product.quantity} x {product.totalPrice} сум
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            {selectedOrder.user.location && (
-              <div className="map-container mt-4">
-                <MapContainer
-                  center={[
-                    selectedOrder.user.location.latitude,
-                    selectedOrder.user.location.longitude,
-                  ]}
-                  zoom={13}
-                  style={{ height: "200px", width: "100%" }}
+              <div className="flex justify-between items-center mb-4">
+                <p className="text-sm font-semibold text-gray-600">
+                  Order ID: {order.orderId}
+                </p>
+                <span
+                  className={`px-2 py-1 rounded-full text-xs font-bold ${
+                    order.status === "Completed"
+                      ? "bg-green-200 text-green-800"
+                      : "bg-yellow-200 text-yellow-800"
+                  }`}
                 >
-                  <TileLayer
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-                  />
-                  <Marker
-                    position={[
-                      selectedOrder.user.location.latitude,
-                      selectedOrder.user.location.longitude,
-                    ]}
-                  >
-                    <Popup>{selectedOrder.user.address}</Popup>
-                  </Marker>
-                </MapContainer>
+                  {order.status}
+                </span>
               </div>
-            )}
+
+              <div className="text-center mb-4">
+                <p className="font-medium text-lg text-gray-800">
+                  {order.user.name}
+                </p>
+                <p className="text-gray-600">Soni: {order.quantity}</p>
+                {/* Loop through each product in the order */}
+                <div className="space-y-4">
+                  {order.products.map((product, productIndex) => (
+                    <div
+                      key={`${product.name}-${productIndex}`}
+                      className="border-b pb-4"
+                    >
+                      <p className="text-gray-600">Mahsulot: {product.name}</p>
+                      <p className="text-gray-600">Soni: {product.quantity}</p>
+                      <p className="text-gray-600">
+                        Narx: {formatPrice(product.totalPrice)} сум
+                      </p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Calculate the total price for all products in the order */}
+                <div className="mt-4">
+                  <p className="text-gray-600 font-bold">
+                    Jami Narx:{" "}
+                    {formatPrice(
+                      order.products.reduce(
+                        (total, product) =>
+                          total + product.totalPrice * product.quantity,
+                        0
+                      )
+                    )}
+                    сум
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex justify-between mt-4">
+                <button
+                  onClick={() => handleCancelOrder(order)}
+                  className="text-blue-600 border border-blue-600 rounded-md px-4 py-2 hover:bg-blue-100 transition"
+                >
+                  Bajarildi
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="text-center text-gray-500">Buyurtmalar topilmadi!</p>
+      )}
+
+      {/* Modal for View Order */}
+      {isViewModalOpen && selectedOrder && (
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-3xl">
+            <h3 className="text-xl font-semibold mb-4">Buyurtma Detallari</h3>
+            <p>
+              <strong>Buyurtma ID:</strong> {selectedOrder.orderId}
+            </p>
+            <p>
+              <strong>Foydalanuvchi Ismi:</strong> {selectedOrder.userName}
+            </p>
+            <p>
+              <strong>Telefon:</strong> {selectedOrder.userPhone}
+            </p>
+            <p>
+              <strong>Hudud:</strong> {selectedOrder.userRegion}
+            </p>
+            <p>
+              <strong>Manzil:</strong> {selectedOrder.userAddress}
+            </p>
+            <p>
+              <strong>Status:</strong> {selectedOrder.status}
+            </p>
+            <p>
+              <strong>Mahsulotlar:</strong>
+            </p>
+            <ul>
+              {selectedOrder.products.map((product, index) => (
+                <li key={index}>
+                  <strong>{product.name}</strong> - {product.quantity} ta -{" "}
+                  {formatPrice(product.totalPrice)} сум
+                </li>
+              ))}
+            </ul>
+            <div className="flex justify-center space-x-4 mt-4">
+              <button
+                onClick={() => setIsViewModalOpen(false)}
+                className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400 transition"
+              >
+                Yopish
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal for Cancel Order */}
+      {isModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-xs">
+            <p className="text-center text-lg font-semibold mb-4">
+              Buyurtmani bekor qilishga ishonchingiz komilmi?
+            </p>
+            <div className="flex justify-center space-x-4">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400 transition"
+              >
+                Yo'q
+              </button>
+              <button
+                onClick={confirmCancelOrder}
+                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition"
+              >
+                Ha
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal for Edit Order */}
+      {isEditModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-xs">
+            <div className="mb-4">
+              <label className="block text-gray-700">Status:</label>
+              <select
+                value={orderDetails.status}
+                onChange={(e) =>
+                  setOrderDetails({ ...orderDetails, status: e.target.value })
+                }
+                className="border rounded px-2 w-full py-1"
+              >
+                <option value="Pending">Pending</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Completed">Completed</option>
+                <option value="Canceled">Canceled</option>
+              </select>
+            </div>
+            <div className="mb-4">
+              <label className="block text-gray-700">Mahsulot Soni:</label>
+              <input
+                type="number"
+                value={orderDetails.quantity}
+                onChange={(e) =>
+                  setOrderDetails({
+                    ...orderDetails,
+                    quantity: parseInt(e.target.value),
+                  })
+                }
+                className="border rounded px-2 w-full py-1"
+                min="1"
+              />
+            </div>
+            <div className="flex justify-center space-x-4">
+              <button
+                onClick={() => setIsEditModalOpen(false)}
+                className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400 transition"
+              >
+                Bekor
+              </button>
+              <button
+                onClick={saveOrderDetails}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+              >
+                Saqlash
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -196,3 +311,4 @@ const ViewOrdersPage = () => {
 };
 
 export default ViewOrdersPage;
+
