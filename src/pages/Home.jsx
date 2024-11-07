@@ -165,6 +165,16 @@ const Home = ({ cart, setCart }) => {
           } px-[10px] py-[8px] rounded-[30px]`}
         >
           Kiyimlar
+        </button>{" "}
+        <button
+          onClick={() => handleCategoryChange("clean")}
+          className={`duration-200 ${
+            selectedCategory === "clean"
+              ? "bg-[#ac7518] text-[white]"
+              : "bg-[#f4f4f4]"
+          } px-[10px] py-[8px] rounded-[30px]`}
+        >
+          Tozalash vositalari
         </button>
       </div>
 
