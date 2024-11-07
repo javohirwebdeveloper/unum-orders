@@ -6,6 +6,7 @@ import { IoMdHeartEmpty, IoMdHeart } from "react-icons/io"; // Like iconlari
 const SearchModal = ({
   setIsSearchOpen,
   addToCart,
+  isInCart,
   likedProducts,
   setLikedProducts,
   cart, // Cartni props orqali oling
@@ -30,10 +31,6 @@ const SearchModal = ({
     product.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const isInCart = (product) => {
-    if (!cart) return false; // Early return if cart is undefined
-    return cart.some((item) => item.id === product.id);
-  };
   return (
     <div className="fixed inset-0 bg-gray-900 bg-opacity-90 flex flex-col justify-between items-center z-50">
       <div className="bg-white p-6 rounded-lg w-full h-full overflow-y-auto">
@@ -83,7 +80,6 @@ const SearchModal = ({
                       ? "bg-gray-300 border-gray-500 "
                       : "bg-[#FFF2E7] border-[#ff9838] text-[#ff9838]"
                   } px-3 py-2 border !text-[16px]   mt-2`}
-                  disabled={isInCart(product)}
                 >
                   {isInCart(product) ? "Savatda bor" : "Savatga qo'shish"}
                 </button>
