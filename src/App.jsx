@@ -72,7 +72,7 @@ if (isLoading) {
         alt="Loading..."
         className="w-36 h-36"
       />
-      <span class="loader1"></span>
+      <span class="loader1 mt-5"></span>
     </div>
   );
 }
