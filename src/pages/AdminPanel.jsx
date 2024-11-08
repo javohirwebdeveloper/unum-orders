@@ -9,19 +9,23 @@ import {
   doc,
 } from "firebase/firestore";
 import { NavLink } from "react-router-dom";
+import ProductModal from "./Modal"; // Modal componentni import qilamiz
 
 const AdminPanel = () => {
   const [products, setProducts] = useState([]);
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [price, setPrice] = useState("");
-  const [image, setImage] = useState("");
-  const [category, setCategory] = useState("");
-  const [likesCount, setLikesCount] = useState(0);
+  const [formData, setFormData] = useState({
+    name: "",
+    description: "",
+    price: "",
+    image: "",
+    category: "",
+    likesCount: 0,
+  });
   const [editMode, setEditMode] = useState(false);
   const [currentId, setCurrentId] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
-  // Admin panelda parolni olib tashlash
   useEffect(() => {
     fetchProducts();
   }, []);
@@ -41,36 +45,34 @@ const AdminPanel = () => {
     if (editMode && currentId) {
       const productRef = doc(db, "products", currentId);
       await updateDoc(productRef, {
-        name,
-        description,
-        price: Number(price),
-        image,
-        category,
-        likesCount: Number(likesCount),
+        ...formData,
+        price: Number(formData.price),
+        likesCount: Number(formData.likesCount),
       });
     } else {
       await addDoc(collection(db, "products"), {
-        name,
-        description,
-        price: Number(price),
-        image,
-        category,
-        likesCount: Number(likesCount),
+        ...formData,
+        price: Number(formData.price),
+        likesCount: Number(formData.likesCount),
       });
     }
     fetchProducts();
     resetForm();
+    setIsModalOpen(false);
   };
 
   const handleEditProduct = (product) => {
     setEditMode(true);
     setCurrentId(product.id);
-    setName(product.name);
-    setDescription(product.description);
-    setPrice(product.price);
-    setImage(product.image);
-    setCategory(product.category || "");
-    setLikesCount(product.likesCount || 0);
+    setFormData({
+      name: product.name,
+      description: product.description,
+      price: product.price,
+      image: product.image,
+      category: product.category || "",
+      likesCount: product.likesCount || 0,
+    });
+    setIsModalOpen(true);
   };
 
   const handleDeleteProduct = async (id) => {
@@ -80,102 +82,49 @@ const AdminPanel = () => {
   };
 
   const resetForm = () => {
-    setName("");
-    setDescription("");
-    setPrice("");
-    setImage("");
-    setCategory("");
-    setLikesCount(0);
+    setFormData({
+      name: "",
+      description: "",
+      price: "",
+      image: "",
+      category: "",
+      likesCount: 0,
+    });
     setEditMode(false);
     setCurrentId(null);
   };
 
-  return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-6 text-center text-blue-600">
-        Admin Panel
-      </h1>
-      <NavLink
-        to="/viewOrders"
-        className="text-blue-600 underline mb-4 block text-center"
-      >
-        Buyurtmalar
-      </NavLink>
-      <form
-        onSubmit={handleAddProduct}
-        className="bg-white p-6 rounded shadow-md mb-6"
-      >
-        <h2 className="text-2xl font-semibold mb-4">
-          Mahsulot Qo'shish / Tahrirlash
-        </h2>
-        <input
-          type="text"
-          placeholder="Mahsulot nomi"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-          className="border border-gray-300 p-2 w-full rounded mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <input
-          type="text"
-          placeholder="Mahsulot tavsifi"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          required
-          className="border border-gray-300 p-2 w-full rounded mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <input
-          type="number"
-          placeholder="Narxi"
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
-          required
-          className="border border-gray-300 p-2 w-full rounded mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <input
-          type="text"
-          placeholder="Rasm URL"
-          value={image}
-          onChange={(e) => setImage(e.target.value)}
-          required
-          className="border border-gray-300 p-2 w-full rounded mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <input
-          type="text"
-          placeholder="Toifa"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          required
-          className="border border-gray-300 p-2 w-full rounded mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <input
-          type="number"
-          placeholder="Likes Count"
-          value={likesCount}
-          onChange={(e) => setLikesCount(e.target.value)}
-          required
-          className="border border-gray-300 p-2 w-full rounded mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <button
-          type="submit"
-          className="bg-blue-600 text-white p-2 rounded w-full hover:bg-blue-700 transition"
-        >
-          {editMode ? "O'zgartirish" : "Qo'shish"}
-        </button>
-        {editMode && (
-          <button
-            type="button"
-            onClick={resetForm}
-            className="bg-red-600 text-white p-2 rounded w-full hover:bg-red-700 transition mt-2"
-          >
-            Bekor qilish
-          </button>
-        )}
-      </form>
+  const filteredProducts = products.filter((product) =>
+    product.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
+  return (
+    <div className="container mx-auto mt-2 p-4">
+      <div className="mb-6">
+        <input
+          type="text"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Mahsulotni qidirish..."
+          className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+
+      <button
+        onClick={() => {
+          setIsModalOpen(true);
+          setEditMode(false);
+          resetForm();
+        }}
+        className="bg-blue-600 text-white p-3 rounded-lg mb-6 hover:bg-blue-700 transition"
+      >
+        Mahsulot Qo'shish
+      </button>
+
+      {/* Products list */}
       <h2 className="text-2xl font-semibold mb-4">Mahsulotlar ro'yxati</h2>
       <ul className="space-y-4">
-        {products.map((product) => (
+        {filteredProducts.map((product) => (
           <li
             key={product.id}
             className="bg-white p-4 rounded shadow-md flex justify-between items-center transition-transform hover:shadow-lg"
@@ -215,6 +164,18 @@ const AdminPanel = () => {
           </li>
         ))}
       </ul>
+
+      {/* Modal */}
+      {isModalOpen && (
+        <ProductModal
+          formData={formData}
+          setFormData={setFormData}
+          handleSubmit={handleAddProduct}
+          resetForm={resetForm}
+          editMode={editMode}
+          setIsModalOpen={setIsModalOpen}
+        />
+      )}
     </div>
   );
 };

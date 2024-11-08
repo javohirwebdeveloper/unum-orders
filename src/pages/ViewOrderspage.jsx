@@ -12,7 +12,7 @@ const ViewOrdersPage = () => {
   const [orders, setOrders] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isViewModalOpen, setIsViewModalOpen] = useState(false); // State for the View Order Modal
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [orderDetails, setOrderDetails] = useState({
     status: "",
@@ -107,6 +107,16 @@ const ViewOrdersPage = () => {
     return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
   };
 
+  const calculateTotalPrice = () => {
+    return orders.reduce((total, order) => {
+      const orderTotal = order.products.reduce(
+        (orderTotal, product) => orderTotal + product.totalPrice,
+        0
+      );
+      return total + orderTotal;
+    }, 0);
+  };
+
   return (
     <div className="max-w-5xl mx-auto p-6 bg-white rounded-lg shadow-lg">
       <h2 className="text-4xl font-bold text-center mb-8">Buyurtmalar</h2>
@@ -115,7 +125,7 @@ const ViewOrdersPage = () => {
           {orders.map((order, index) => (
             <div
               key={`${order.orderId}-${index}`}
-              className="bg-gray-50 shadow-md rounded-lg overflow-hidden p-4 flex flex-col justify-between transition-transform hover:scale-105 border-l-4 border-blue-500"
+              className="bg-gray-50 shadow-md rounded-lg overflow-hidden p-4 flex flex-col justify-between transition-transform hover:scale-105 border-4 border-blue-500"
             >
               <div className="flex justify-between items-center mb-4">
                 <p className="text-sm font-semibold text-gray-600">
@@ -136,8 +146,15 @@ const ViewOrdersPage = () => {
                 <p className="font-medium text-lg text-gray-800">
                   {order.user.name}
                 </p>
-                <p className="text-gray-600">Soni: {order.quantity}</p>
-                {/* Loop through each product in the order */}
+                <p className="font-medium text-lg text-gray-800">
+                  {order.user.phone}
+                </p>
+                <p className="font-medium text-lg text-gray-800">
+                  {order.user.region}
+                </p>
+                <p className="font-medium text-lg text-gray-800">
+                  {order.user.address}
+                </p>
                 <div className="space-y-4">
                   {order.products.map((product, productIndex) => (
                     <div
@@ -147,23 +164,21 @@ const ViewOrdersPage = () => {
                       <p className="text-gray-600">Mahsulot: {product.name}</p>
                       <p className="text-gray-600">Soni: {product.quantity}</p>
                       <p className="text-gray-600">
-                        Narx: {formatPrice(product.totalPrice)} сум
+                        Jami: {formatPrice(product.totalPrice)} сум
                       </p>
                     </div>
                   ))}
                 </div>
 
-                {/* Calculate the total price for all products in the order */}
                 <div className="mt-4">
                   <p className="text-gray-600 font-bold">
                     Jami Narx:{" "}
                     {formatPrice(
                       order.products.reduce(
-                        (total, product) =>
-                          total + product.totalPrice * product.quantity,
+                        (total, product) => total + product.totalPrice,
                         0
                       )
-                    )}
+                    )}{" "}
                     сум
                   </p>
                 </div>
@@ -184,7 +199,10 @@ const ViewOrdersPage = () => {
         <p className="text-center text-gray-500">Buyurtmalar topilmadi!</p>
       )}
 
-      {/* Modal for View Order */}
+      <div className="fixed top-12 right-6 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg">
+        Jami: {formatPrice(calculateTotalPrice())} сум
+      </div>
+
       {isViewModalOpen && selectedOrder && (
         <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-3xl">
