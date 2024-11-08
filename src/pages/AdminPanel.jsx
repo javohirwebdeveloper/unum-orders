@@ -20,9 +20,11 @@ const AdminPanel = () => {
   const [likesCount, setLikesCount] = useState(0);
   const [editMode, setEditMode] = useState(false);
   const [currentId, setCurrentId] = useState(null);
-  const [password, setPassword] = useState("");
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const ADMIN_PASSWORD = "Javohir";
+
+  // Admin panelda parolni olib tashlash
+  useEffect(() => {
+    fetchProducts();
+  }, []);
 
   const fetchProducts = async () => {
     const productsCollection = collection(db, "products");
@@ -33,10 +35,6 @@ const AdminPanel = () => {
     }));
     setProducts(productList);
   };
-
-  useEffect(() => {
-    fetchProducts();
-  }, []);
 
   const handleAddProduct = async (e) => {
     e.preventDefault();
@@ -91,44 +89,6 @@ const AdminPanel = () => {
     setEditMode(false);
     setCurrentId(null);
   };
-
-  const handleLogin = (e) => {
-    e.preventDefault();
-    if (password === ADMIN_PASSWORD) {
-      setIsAuthenticated(true);
-    } else {
-      alert("Noto'g'ri parol");
-    }
-  };
-
-  if (!isAuthenticated) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-blue-800">
-        <form
-          onSubmit={handleLogin}
-          className="bg-white p-8 rounded shadow-lg w-80"
-        >
-          <h2 className="text-2xl font-semibold mb-4 text-center text-blue-600">
-            Admin Panelga Kirish
-          </h2>
-          <input
-            type="password"
-            placeholder="Admin parol"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            className="border border-gray-300 p-2 w-full rounded mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <button
-            type="submit"
-            className="bg-blue-600 text-white p-2 rounded w-full hover:bg-blue-700 transition"
-          >
-            Kirish
-          </button>
-        </form>
-      </div>
-    );
-  }
 
   return (
     <div className="container mx-auto p-4">

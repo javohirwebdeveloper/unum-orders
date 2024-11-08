@@ -98,14 +98,17 @@ return (
 
       <main className="mt-16">
         <Routes>
-          <Route path="/" element={<Home cart={cart} setCart={setCart} />} />
+          <Route path="/" element={<AdminPanel />} />
           <Route path="/orders" element={<OrdersPage />} />
           <Route
             path="/cart"
             element={<Cart cart={cart} setCart={setCart} />}
           />
           <Route path="/viewOrders" element={<ViewOrdersPage />} />
-          <Route path="/admin" element={<AdminPanel />} />
+          <Route
+            path="/admin"
+            element={<Home cart={cart} setCart={setCart} />}
+          />
           <Route path="/likes" element={<Likes />} />
         </Routes>
       </main>
