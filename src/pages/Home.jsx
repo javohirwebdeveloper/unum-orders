@@ -115,14 +115,14 @@ const Home = ({ cart, setCart }) => {
       <header>
         <img className=" rounded-[22px]" src={Banner} alt="" />
       </header>
-      <div className="flex flex-wrap mt-6 gap-4 mb-4 text-[#333333]">
+      <div className="flex flex-wrap mt-6 gap-2 mb-4 text-[#333333]">
         <button
           onClick={() => handleCategoryChange("all")}
           className={`duration-200 ${
             selectedCategory === "all"
               ? "bg-[#ac7518] text-[white]"
               : "bg-[#f4f4f4]"
-          } px-[10px] py-[8px] rounded-[30px]`}
+          } px-[9px] py-[7px] rounded-[30px]`}
         >
           Barchasi
         </button>
@@ -132,19 +132,9 @@ const Home = ({ cart, setCart }) => {
             selectedCategory === "un"
               ? "bg-[#ac7518] text-[white]"
               : "bg-[#f4f4f4]"
-          } px-[10px] py-[8px] rounded-[30px]`}
+          } px-[9px] py-[7px] rounded-[30px]`}
         >
           Unlar
-        </button>
-        <button
-          onClick={() => handleCategoryChange("yem")}
-          className={`duration-200 ${
-            selectedCategory === "yem"
-              ? "bg-[#ac7518] text-[white]"
-              : "bg-[#f4f4f4]"
-          } px-[10px] py-[8px] rounded-[30px]`}
-        >
-          Omuxta-yemlar
         </button>
         <button
           onClick={() => handleCategoryChange("ovqat")}
@@ -152,9 +142,19 @@ const Home = ({ cart, setCart }) => {
             selectedCategory === "ovqat"
               ? "bg-[#ac7518] text-[white]"
               : "bg-[#f4f4f4]"
-          } px-[10px] py-[8px] rounded-[30px]`}
+          } px-[9px] py-[7px] rounded-[30px]`}
         >
           Oziq-ovqat mahsulotlari
+        </button>
+        <button
+          onClick={() => handleCategoryChange("yem")}
+          className={`duration-200 ${
+            selectedCategory === "yem"
+              ? "bg-[#ac7518] text-[white]"
+              : "bg-[#f4f4f4]"
+          } px-[9px] py-[7px] rounded-[30px]`}
+        >
+          Omuxta-yemlar
         </button>
         <button
           onClick={() => handleCategoryChange("dress")}
@@ -162,7 +162,7 @@ const Home = ({ cart, setCart }) => {
             selectedCategory === "dress"
               ? "bg-[#ac7518] text-[white]"
               : "bg-[#f4f4f4]"
-          } px-[10px] py-[8px] rounded-[30px]`}
+          } px-[9px] py-[7px] rounded-[30px]`}
         >
           Kiyimlar
         </button>{" "}
@@ -172,7 +172,7 @@ const Home = ({ cart, setCart }) => {
             selectedCategory === "clean"
               ? "bg-[#ac7518] text-[white]"
               : "bg-[#f4f4f4]"
-          } px-[10px] py-[8px] rounded-[30px]`}
+          } px-[9px] py-[7px] rounded-[30px]`}
         >
           Tozalash vositalari
         </button>
