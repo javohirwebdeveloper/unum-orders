@@ -30,7 +30,7 @@ const MenuModal = ({ isMenuOpen, setIsMenuOpen }) => {
       >
         <div
           className={`${isMenuOpen ? " translate-x-0" : " -translate-x-[120%]"}
-            bg-white fixed duration-500 left-0 top-0 w-[250px] h-full p-6 z-40`}
+            bg-white fixed flex flex-col justify-between pb-[15px] duration-500 left-0 top-0 w-[250px] h-full p-3 z-40`}
           onClick={(e) => e.stopPropagation()} // Modal ichidagi elementlarga bosganda yopilmasligi uchun
         >
           <button
@@ -50,16 +50,13 @@ const MenuModal = ({ isMenuOpen, setIsMenuOpen }) => {
                 Bosh sahifa
               </Link>
             </li>
-            <li>
-              <Link
-                to="/admin"
-                onClick={closeModal}
-                className="block py-3 text-lg text-gray-700 hover:text-[#ac7518] transition duration-200"
-              >
-                Admin Paneli
-              </Link>
-            </li>
           </ul>
+          <div className="flex gap-1 items-center font-semibold text-[15px]">
+            <span>Sayt yaratuvchisi:</span>
+            <span className="text-blue-500">
+              <a href="https://t.me/javohir_fd">@javohir_fd</a>
+            </span>
+          </div>
         </div>
       </div>
     </>
