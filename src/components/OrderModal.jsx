@@ -114,7 +114,7 @@ const OrderModal = ({ setIsOrderOpen, orderDetails, clearCart }) => {
   };
   return (
     <div className="fixed inset-0 z-40 bg-gray-900 bg-opacity-60 flex justify-center items-center px-4">
-      <div className="bg-white relative p-6 rounded-lg shadow-lg w-full max-w-md">
+      <div className="bg-white relative p-5 rounded-lg shadow-lg w-full max-w-md">
         <button
           onClick={() => setIsOrderOpen(false)}
           className="absolute top-2 right-2 p-1 hover:bg-gray-200 rounded"
