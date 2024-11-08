@@ -87,17 +87,13 @@ return (
         <Link to="/">
           <img src={LogoImg} className="w-10 rounded-[15%]" alt="Logo" />
         </Link>
-        <div className="flex items-center">
-          <button onClick={() => setIsSearchOpen(true)} className="rounded">
-            <img src={SearchImg} alt="Search" />
-          </button>
-          <Link
-            to="/cart"
-            className="flex justify-center items-center flex-col px-4 py-2 rounded"
-          >
-            <img src={CartImg} alt="Cart" />
-          </Link>
-        </div>
+
+        <Link
+          to="/cart"
+          className="flex justify-center items-center flex-col px-4 py-2 rounded"
+        >
+          <img src={CartImg} alt="Cart" />
+        </Link>
       </header>
 
       <main className="mt-16">
@@ -126,7 +122,7 @@ return (
       {isOrderOpen && <OrderModal setIsOrderOpen={setIsOrderOpen} />}
     </div>
 
-    <div className="navbar fixed bottom-0 bg-white w-full p-3 justify-between z-10 h-[76px] border-t-2 flex items-center shadow-md">
+    <div className="navbar rounded-[50px] fixed bottom-0 bg-white w-full p-3 px-7 justify-between z-10 h-[66px] border-t-2 flex items-center shadow-lg">
       <NavLink
         to="/"
         className={({ isActive }) =>
@@ -138,9 +134,13 @@ return (
         <p className="text-[30px]">
           <GoHome />
         </p>
-        <span className="text-sm">Home</span>
       </NavLink>
-
+      <button
+        onClick={() => setIsSearchOpen(true)}
+        className="rounded flex flex-col items-center justify-center"
+      >
+        <img src={SearchImg} alt="Search" className="w-7" />
+      </button>
       <NavLink
         to="/cart"
         className={({ isActive }) =>
@@ -149,27 +149,24 @@ return (
           } hover:text-red-500`
         }
       >
-        {cart.length > 0 && (
-          <div className="bg-red-500 absolute right-0 -mt-3 -mr-3 text-[20px] top-0 rounded-full w-6 h-6 flex justify-center items-center text-white">
-            {cart.length}
-          </div>
-        )}
+        <div className="bg-red-500 absolute right-0 -mt-3 -mr-3 text-[20px] top-0 rounded-full w-6 h-6 flex justify-center items-center text-white">
+          {cart.length > 0 ? <span>{cart.length} </span> : 0}
+        </div>
+
         <p className="text-[30px]">
           <FiShoppingCart />
         </p>
-        <span className="text-sm">Savat</span>
       </NavLink>
 
       <NavLink
         to="/orders"
         className={({ isActive }) =>
-          `flex flex-col relative items-center justify-center transition-all duration-300 ${
+          `flex flex-col relative -mt-[2px] items-center justify-center transition-all duration-300 ${
             isActive ? "text-red-500 font-bold" : "text-gray-600"
           } hover:text-red-500`
         }
       >
         <img src={CartImg} className="w-8" alt="Orders" />
-        <span className="text-sm">Buyurtmalar</span>
       </NavLink>
     </div>
   </Router>

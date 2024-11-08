@@ -320,35 +320,44 @@ h78.747C231.693,100.736,232.77,106.162,232.77,111.694z"
           {filteredProducts.map((product) => (
             <div
               key={product.id}
-              className="border rounded-lg shadow-lg flex flex-col p-4 h-full"
+              className="border rounded-lg shadow-lg flex flex-col p-1 h-full"
             >
               <div className="relative product-image-wrapper">
                 <img
                   loading="lazy"
                   src={product.image}
                   alt={product.name}
-                  className="w-full h-48 object-cover mb-2 rounded-lg"
+                  className="w-full h-48 object-cover mb-1 rounded-b-none rounded-lg"
                 />
               </div>
-              <h3 className="text-lg md:text-xl font-bold mb-2">
-                {product.name}
-              </h3>
-              <p className="text-sm md:text-base text-gray-700 mb-1">
-                {product.description}
-              </p>
-              <p className="text-sm font-semibold text-[#ff8716] mb-1">
-                {formatPrice(product.price)} сум
-              </p>
-              <button
-                onClick={() => addToCart(product)}
-                className={`w-full font-semibold text-xs sm:text-sm ${
-                  isInCart(product)
-                    ? "bg-gray-300 border-gray-500 "
-                    : "bg-[#FFF2E7] border-[#ff9838] text-[#ff9838]"
-                } px-3 py-2 border !text-[16px]   mt-2`}
-              >
-                {isInCart(product) ? "Savatda bor" : "Savatga qo'shish"}
-              </button>
+              <div className="p-2 pt-1">
+                <h3 className=" text-[15px] md:text-xl font-bold mb-2">
+                  {product.name}
+                </h3>
+                <p className="text-sm md:text-base text-gray-700 mb-1">
+                  {product.description}
+                </p>
+                <div className=" flex -mt-2 justify-between w-full items-end">
+                  <p className="text-sm font-semibold flex flex-col text-[#ff8716] mb-1">
+                    <span className=" text-lg leading-[10px]">
+                      {formatPrice(product.price)}
+                    </span>
+                    <span className="text-base">сум</span>
+                  </p>
+                  <button
+                    onClick={() => addToCart(product)}
+                    className={`font-semibold rounded-full border w-14 h-14 shadow-xl text-xs sm:text-sm ${
+                      isInCart(product) ? "text-[#ff9838]" : ""
+                    } p-2 !text-[26px]`}
+                  >
+                    {isInCart(product) ? (
+                      <i className="fi fi-rr-bag-shopping-minus"></i>
+                    ) : (
+                      <i class="fi fi-rr-shopping-bag-add"></i>
+                    )}
+                  </button>
+                </div>
+              </div>
             </div>
           ))}
         </div>
