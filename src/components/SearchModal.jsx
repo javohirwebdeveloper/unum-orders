@@ -44,8 +44,8 @@ const SearchModal = ({
 
   return (
     <div className="fixed inset-0 flex flex-col justify-between items-center z-50">
-      <div className="bg-white p-4 pt-5 w-full h-full overflow-y-auto">
-        <div className="flex justify-between items-center gap-4">
+      <div className="bg-white relative p-4 mt-4 pt-5 w-full h-full overflow-y-auto">
+        <div className="flex fixed w-full left-0 -mt-[3px] top-0 px-4 pt-3 z-50 bg-white justify-between items-center gap-4">
           <button
             onClick={() => setIsSearchOpen(false)}
             className="font-semibold !text-[30px] rounded-full"
