@@ -324,6 +324,7 @@ h78.747C231.693,100.736,232.77,106.162,232.77,111.694z"
             >
               <div className="relative">
                 <img
+                  loading="lazy"
                   src={product.image}
                   alt={product.name}
                   className="w-full h-48 object-cover mb-2 rounded-lg"

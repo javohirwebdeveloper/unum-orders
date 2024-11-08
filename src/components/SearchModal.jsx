@@ -59,6 +59,7 @@ const SearchModal = ({
               >
                 <div className="relative">
                   <img
+                    loading="lazy"
                     src={product.image}
                     alt={product.name}
                     className="w-full h-48 object-cover mb-2 rounded-lg"
