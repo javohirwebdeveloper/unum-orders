@@ -89,7 +89,7 @@ return (
         </Link>
 
         <Link
-          to="/cart"
+          to="/orders"
           className="flex justify-center items-center flex-col px-4 py-2 rounded"
         >
           <img src={CartImg} alt="Cart" />
