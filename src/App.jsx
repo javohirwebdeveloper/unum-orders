@@ -66,12 +66,13 @@ useEffect(() => {
 
 if (isLoading) {
   return (
-    <div className="fixed h-screen w-screen bg-gradient-to-br from-black to-[#ac7518] inset-0 flex items-center justify-center z-50">
+    <div className="fixed flex-col  h-screen w-screen bg-gradient-to-br from-black to-[#ac7518] inset-0 flex items-center justify-center z-50">
       <img
         src="https://i.imgur.com/SdCe2Ui.png"
         alt="Loading..."
         className="w-36 h-36"
       />
+      <span class="loader1"></span>
     </div>
   );
 }

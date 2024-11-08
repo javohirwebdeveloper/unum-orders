@@ -322,7 +322,7 @@ h78.747C231.693,100.736,232.77,106.162,232.77,111.694z"
               key={product.id}
               className="border rounded-lg shadow-lg flex flex-col p-4 h-full"
             >
-              <div className="relative">
+              <div className="relative product-image-wrapper">
                 <img
                   loading="lazy"
                   src={product.image}
