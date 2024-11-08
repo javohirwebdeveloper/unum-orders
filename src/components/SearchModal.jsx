@@ -91,15 +91,18 @@ const SearchModal = ({
                   />
                 </div>
                 <div className="p-2 pt-1">
-                  <h3 className="text-lg md:text-xl font-bold mb-2">
+                  <h3 className=" text-[15px] md:text-xl font-bold mb-2">
                     {product.name}
                   </h3>
                   <p className="text-sm md:text-base text-gray-700 mb-1">
                     {product.description}
                   </p>
-                  <div className=" flex justify-between w-full items-end">
-                    <p className="text-sm font-semibold text-[#ff8716] mb-1">
-                      {formatPrice(product.price)} сум
+                  <div className=" flex -mt-2 justify-between w-full items-end">
+                    <p className="text-sm font-semibold flex flex-col text-[#ff8716] mb-1">
+                      <span className=" text-lg leading-[10px]">
+                        {formatPrice(product.price)}
+                      </span>
+                      <span className="text-base">сум</span>
                     </p>
                     <button
                       onClick={() => addToCart(product)}
@@ -110,7 +113,7 @@ const SearchModal = ({
                       {isInCart(product) ? (
                         <i className="fi fi-rr-bag-shopping-minus"></i>
                       ) : (
-                        <i className="fi fi-rr-shopping-bag-add"></i>
+                        <i class="fi fi-rr-shopping-bag-add"></i>
                       )}
                     </button>
                   </div>
