@@ -119,7 +119,6 @@ const ViewOrdersPage = () => {
 
   return (
     <div className="max-w-5xl mx-auto p-6 bg-white rounded-lg shadow-lg">
-      <h2 className="text-4xl font-bold text-center mb-8">Buyurtmalar</h2>
       {orders.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {orders.map((order, index) => (
